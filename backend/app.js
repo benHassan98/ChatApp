@@ -4,7 +4,7 @@ const logger = require("morgan");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const Message = require("./models/message");
+
 const app = express();
 
 app.use(cors());
@@ -17,7 +17,16 @@ const io = new Server(server, {
     origin: process.env.REACT_APP,
   },
 });
+const roomsLists = {};
+io.on("connection", (socket) => {
+  console.log(`User ${socket.id} is connected`);
+  socket.on("newUser", (userName, room) => {
+if(!roomsLists[room])roomsLists[room] = [];
+roomsLists[room].push(userName);
+socket.join(room);
 
-io.on("connection", (socket) => {});
+
+  });
+});
 
 module.exports = server;

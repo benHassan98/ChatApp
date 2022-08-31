@@ -4,7 +4,7 @@ const {Schema} = mongoose;
 const MessageSchema = new Schema({
 sender:String,
 reciver:String,
-channel:String,
+room:String,
 content:String,
 createdAt:Date
 });
