@@ -6,7 +6,15 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const { CreateMessage } = require("./utils/CreateMessage");
 const { GetMessages } = require("./utils/GetMessages");
+const mongoose = require("mongoose");
 const app = express();
+
+if (process.env.NODE_ENV === "production") {
+  mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+}
 
 app.use(cors());
 app.use(logger("dev"));
@@ -21,21 +29,22 @@ const io = new Server(server, {
 const roomsLists = {};
 const usersInfo = {};
 let messages, messagesPrivate;
+const joinRoom = (userId,room)=>{
+usersInfo[userId].rooms.push(room);
+return true;
+};
+const leaveRoom = (userId,room)=>{
+  usersInfo[userId].rooms = usersInfo[userId].rooms.filter((curRoom) => curRoom !== room);
+  return true;
+};
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
+
   socket.on("newUser", async (userName, room) => {
     const user = {
       id: socket.id,
       userName,
       rooms: [room],
-      joinRoom: (room) => {
-        this.rooms.push(room);
-        return true;
-      },
-      leaveRoom: (room) => {
-        this.rooms = this.rooms.filter((curRoom) => curRoom !== room);
-        return true;
-      },
     };
     const message = {
       sender: "ChatBot",
@@ -58,7 +67,7 @@ io.on("connection", (socket) => {
       room,
       content: `${usersInfo[socket.id].userName} joined the Room`,
     };
-    usersInfo[socket.id].joinRoom(room);
+    joinRoom(socket.id,room);
     roomsLists[room].push(usersInfo[socket.id]);
     await CreateMessage(message);
     messages.push(message);
@@ -73,7 +82,7 @@ io.on("connection", (socket) => {
       room,
       content: `${usersInfo[socket.id].userName} left the Room`,
     };
-    usersInfo[socket.id].leaveRoom(room);
+    leaveRoom(socket.id,room);
     roomsLists[room] = roomsLists[room].filter((user) => user.id !== socket.id);
     await CreateMessage(message);
     messages.push(message);
@@ -106,10 +115,11 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     const message = {
       sender: "ChatBot",
-      room,
       content: `${usersInfo[socket.id].userName} disconnected from the Chat`,
     };
     usersInfo[socket.id].rooms.forEach(async (room) => {
+      message.room = room;
+      messages.push(message);
       roomsLists[room] = roomsLists[room].filter(
         (user) => user.id !== socket.id
       );
