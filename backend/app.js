@@ -4,8 +4,8 @@ const logger = require("morgan");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const { CreateMessage } = require("./utils/CreateMessage");
-const { GetMessages } = require("./utils/GetMessages");
+const CreateMessage = require("./utils/CreateMessage");
+const GetMessages = require("./utils/GetMessages");
 const mongoose = require("mongoose");
 const app = express();
 
@@ -28,27 +28,30 @@ const io = new Server(server, {
 });
 const roomsLists = {};
 const usersInfo = {};
-let messages, messagesPrivate;
-const joinRoom = (userId,room)=>{
-usersInfo[userId].rooms.push(room);
-return true;
-};
-const leaveRoom = (userId,room)=>{
-  usersInfo[userId].rooms = usersInfo[userId].rooms.filter((curRoom) => curRoom !== room);
+const joinRoom = (userId, room) => {
+  usersInfo[userId].rooms.push(room);
   return true;
 };
+const leaveRoom = (userId, room) => {
+  usersInfo[userId].rooms = usersInfo[userId].rooms.filter(
+    (curRoom) => curRoom !== room
+  );
+  return true;
+};
+
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
-
   socket.on("newUser", async (userName, room) => {
+    console.log("in newUser: ",socket.id);
     const user = {
       id: socket.id,
       userName,
       rooms: [room],
     };
     const message = {
-      sender: "ChatBot",
+      senderId: "ChatBot",
       room,
+      isPublic:true,
       content: `${userName} joined the Room`,
     };
     if (!roomsLists[room]) roomsLists[room] = [];
@@ -56,76 +59,65 @@ io.on("connection", (socket) => {
     usersInfo[socket.id] = user;
 
     await CreateMessage(message);
-    messages.push(message);
+
     socket.join(room);
-    socket.to(room).emit("chatUsers", roomsLists[room]);
-    socket.to(room).emit("newMessage", message);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
+    io.sockets.in(room).emit("newMessage", message);
   });
   socket.on("joinRoom", async (room) => {
+    if (!roomsLists[room]) roomsLists[room] = [];
     const message = {
-      sender: "ChatBot",
+      senderId: "ChatBot",
       room,
+      isPublic:true,
       content: `${usersInfo[socket.id].userName} joined the Room`,
     };
-    joinRoom(socket.id,room);
+
+    joinRoom(socket.id, room);
     roomsLists[room].push(usersInfo[socket.id]);
     await CreateMessage(message);
-    messages.push(message);
     socket.join(room);
-    socket.to(room).emit("chatUsers", roomsLists[room]);
-    socket.to(room).emit("newMessage", message);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
+    io.sockets.in(room).emit("newMessage", message);
   });
 
   socket.on("leaveRoom", async (room) => {
     const message = {
-      sender: "ChatBot",
+      senderId: "ChatBot",
       room,
+      isPublic:true,
       content: `${usersInfo[socket.id].userName} left the Room`,
     };
-    leaveRoom(socket.id,room);
+    leaveRoom(socket.id, room);
     roomsLists[room] = roomsLists[room].filter((user) => user.id !== socket.id);
     await CreateMessage(message);
-    messages.push(message);
     socket.leave(room);
-    socket.to(room).emit("newMessage", message);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
+    io.sockets.in(room).emit("newMessage", message);
   });
 
   socket.on("newMessage", async (room, message) => {
-    if (message.room === "private") messagesPrivate.push(message);
-    else messages.push(message);
-
     await CreateMessage(message);
-
-    socket.to(room).emit("chatUsers", roomsLists[room]);
+    if (message.isPublic) {
+      socket.to(room).emit("newMessage", message);
+    } else {
+      socket.to(message.reciverId).emit("newMessage", message);
+    }
   });
 
   socket.on("getMessages", async (room, isPublic) => {
-    if (!messages) {
-      const allMessages = await GetMessages(room);
-      messages = allMessages.filter((message) => message.room !== "private");
-      messagesPrivate = allMessages.filter(
-        (message) => message.room === "private"
-      );
-    }
-    const responseMessages = isPublic ? messages : messagesPrivate;
-    socket.to(room).emit("getMessages", responseMessages);
-    socket.to(room).emit("chatUsers", roomsLists[room]);
+    const messages = await GetMessages(room,isPublic,socket.id);
+  
+    socket.emit("getMessages", messages);
   });
 
   socket.on("disconnect", () => {
-    const message = {
-      sender: "ChatBot",
-      content: `${usersInfo[socket.id].userName} disconnected from the Chat`,
-    };
+    console.log("disconnect: ", socket.id);
     usersInfo[socket.id].rooms.forEach(async (room) => {
-      message.room = room;
-      messages.push(message);
       roomsLists[room] = roomsLists[room].filter(
         (user) => user.id !== socket.id
       );
       socket.to(room).emit("chatUsers", roomsLists[room]);
-      socket.to(room).emit("newMessage", message);
-      await CreateMessage(message);
       socket.leave(room);
     });
 
@@ -133,4 +125,4 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = server;
+module.exports = io;

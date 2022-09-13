@@ -1,14 +1,13 @@
-const mongoose = require('mongoose');
-const {Schema} = mongoose;
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const MessageSchema = new Schema({
-sender:String,
-reciver:String,
-room:String,
-content:String,
-createdAt:Date
+  senderId: String,
+  reciverId: String,
+  room: String,
+  isPublic:Boolean,
+  content: String,
+  createdAt: Date,
 });
 
-
-module.exports = mongoose.model('RealTimeMessage',MessageSchema);
-
+module.exports = mongoose.model("RealTimeMessage", MessageSchema);

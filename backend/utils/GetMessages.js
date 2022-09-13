@@ -1,6 +1,11 @@
 const Message = require("../models/message");
-
-exports = async (roomName) => {
-  const messages = await Message.find({ room: roomName });
-  return messages;
+const GetMessages = async (room, isPublic, socketId) => {
+  const messages = await Message.find({ room, isPublic });
+  if (isPublic) return messages;
+  else
+    return messages.filter(
+      (message) =>
+        message.senderId === socketId || message.reciverId === socketId
+    );
 };
+module.exports = GetMessages;
