@@ -1,0 +1,13 @@
+body {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  gap: 2px;
+}
+.list-group-item button {
+  opacity: 0;
+}
+
+.list-group-item:hover button {
+  opacity: 100;
+}

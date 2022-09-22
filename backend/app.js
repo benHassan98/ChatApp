@@ -42,7 +42,7 @@ const leaveRoom = (userId, room) => {
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
   socket.on("newUser", async (userName, room) => {
-    console.log("in newUser: ",socket.id);
+    console.log("in newUser: ", socket.id);
     const user = {
       id: socket.id,
       userName,
@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
     const message = {
       senderId: "ChatBot",
       room,
-      isPublic:true,
+      isPublic: true,
       content: `${userName} joined the Room`,
     };
     if (!roomsLists[room]) roomsLists[room] = [];
@@ -64,12 +64,20 @@ io.on("connection", (socket) => {
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
   });
+  socket.on("getAllUsers", () => {
+    const allUsersNames = Object.entries(usersInfo).reduce(
+      (prev, [, user]) => [...prev, user],
+      []
+    );
+
+    socket.emit("chatUsers", allUsersNames);
+  });
   socket.on("joinRoom", async (room) => {
     if (!roomsLists[room]) roomsLists[room] = [];
     const message = {
       senderId: "ChatBot",
       room,
-      isPublic:true,
+      isPublic: true,
       content: `${usersInfo[socket.id].userName} joined the Room`,
     };
 
@@ -85,7 +93,7 @@ io.on("connection", (socket) => {
     const message = {
       senderId: "ChatBot",
       room,
-      isPublic:true,
+      isPublic: true,
       content: `${usersInfo[socket.id].userName} left the Room`,
     };
     leaveRoom(socket.id, room);
@@ -106,8 +114,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getMessages", async (room, isPublic) => {
-    const messages = await GetMessages(room,isPublic,socket.id);
-  
+    const messages = await GetMessages(room, isPublic, socket.id);
+
     socket.emit("getMessages", messages);
   });
 

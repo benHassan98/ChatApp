@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Document</title>
+</head>
+
+
+
+<style>
+    body {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        gap: 2px;
+    }
+
+    textarea {
+        resize: none;
+    }
+
+
+    .users-list {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+    }
+
+    .board {
+        flex: 8;
+        display: flex;
+        flex-direction: column;
+
+    }
+
+    .rooms {
+        display: flex;
+        flex: 1;
+
+    }
+
+    .messages {
+        flex: 5;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid black;
+        overflow: scroll;
+
+    }
+
+    .message-input {
+
+        display: flex;
+        gap: 5px;
+    }
+
+    .chats-div,
+    .active-div {
+        overflow: scroll;
+    }
+
+    p {
+        all: unset;
+    }
+
+    .p1,
+    .p2,
+    .p3 {
+        max-width: 600px;
+        border-radius: 6px;
+        padding: 12px;
+    }
+
+    .p1 {
+        align-self: center;
+
+
+    }
+
+    .p2 {
+        align-self: flex-start;
+    }
+
+    .p3 {
+        align-self: flex-end;
+    }
+
+
+    .list-group-item button {
+        opacity: 0;
+    }
+
+    .list-group-item:hover button {
+        opacity: 100;
+    }
+</style>
+
+<body>
+
+
+    <div class="users-list">
+        <div class="active-div">
+            <div class="text-center">Active Users</div>
+
+            <div class="list-group">
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    <p>abo boom</p>
+
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                    abo
+                    lela</div>
+
+
+            </div>
+        </div>
+        <hr>
+        <div class="chats-div">
+            <div class="text-center">On Going Chats</div>
+            <div class="list-group">
+                <div class="list-group-item d-flex justify-content-between align-items-center active">
+                    <p> abo
+                        hbda</p>
+
+                    <button type="button" class="btn btn-danger"
+                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                        Close Chat
+                    </button>
+                    <span class="badge bg-danger rounded-pill">5</span>
+
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                    hbda</div>
+                <div class="list-group-item d-flex justify-content-between align-items-center ">
+                    abo
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+    <div class="board">
+        <div class="messages">
+
+            <div class="p1 text-center bg-dark text-white">
+                <p>Someone joined the Room</p>
+            </div>
+            <div class="p2 text-center bg-dark text-white">
+                <p>hi someone</p>
+            </div>
+            <div class="p3 text-center bg-dark text-white">
+                <p>hey bruh</p>
+            </div>
+            <div class="p3 text-center bg-dark text-white">
+                <p>how ya doin</p>
+            </div>
+
+
+        </div>
+        <div class="message-input form-floating">
+            <textarea class="form-control" placeholder="Leave a message here" id="floatingTextarea2"
+                style="height: 70px"></textarea>
+            <label for="floatingTextarea2">Message...</label>
+            <button class="btn btn-primary">Send</button>
+
+        </div>
+    </div>
+
+    <div class="rooms">
+        <button class="btn btn-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+            aria-controls="offcanvasRight">Show Rooms</button>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Rooms</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body" style="display:flex; flex-direction:column;gap:10px;">
+                <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between align-items-center active ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">
+                        <p>hbd channel</p>
+                        <button type="button" class="btn btn-outline-primary my-btn"
+                            style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                            Join Room
+                        </button> <span class="badge bg-primary rounded-pill">10</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd
+                        channel</div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center ">hbd channel</div>
+
+                </div>
+                <button type="button" class="btn btn-outline-primary">
+                    Create New Room
+                </button>
+
+                <div class="mb-3 invisible">
+                    <label for="roomName" class="form-label">Room Name</label>
+                    <input type="text" class="form-control is-invalid" id="roomName">
+                    <div class="invalid-feedback">
+                        Please Enter a valid Room Name.
+                    </div>
+
+                    <button type="button" class="btn btn-secondary">Close</button>
+                    <button type="button" class="btn btn-primary">Create</button>   
+
+                </div>
+
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+
+</body>
+
+</html>
