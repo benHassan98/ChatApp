@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "../styles/Board.css";
 const Board = ({ socket, room, isPublic }) => {
   const [messages, setMessages] = useState([]);
+  const textAreaRef = useRef();
   const bottomRef = useRef();
   useEffect(() => {
     socket.emit("getMessages", room, isPublic);
@@ -44,9 +45,27 @@ const Board = ({ socket, room, isPublic }) => {
           placeholder="Leave a message here"
           id="floatingTextarea"
           style={{ height: "70px" }}
+          ref={textAreaRef}
         ></textarea>
         <label HtmlFor="floatingTextarea">Message...</label>
-        <button className="btn btn-primary">Send</button>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            if (textAreaRef.current.value !== "") {
+              const message = {
+                senderId: socket.id,
+                room,
+                isPublic,
+                content: textAreaRef.current.value,
+              };
+              if (!isPublic) message.reveiverId = room;
+              setMessages([...messages,message]);
+              socket.emit('newMessage',room,message);
+            }
+          }}
+        >
+          Send
+        </button>
       </div>
     </div>
   );

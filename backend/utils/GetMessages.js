@@ -5,7 +5,7 @@ const GetMessages = async (room, isPublic, socketId) => {
   else
     return messages.filter(
       (message) =>
-        message.senderId === socketId || message.reciverId === socketId
+        message.senderId === socketId || message.receiverId === socketId
     );
 };
 module.exports = GetMessages;

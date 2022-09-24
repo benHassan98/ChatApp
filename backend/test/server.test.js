@@ -161,8 +161,8 @@ it('should send messages to other user in private room',(done)=>{
     // console.log(message);
     expect(message).to.deep.equal({
       senderId: clientSocket.id,
-      reciverId:clientSocket2.id,
-      room: roomName,
+      receiverId:clientSocket2.id,
+      room: clientSocket2.id,
       isPublic:false,
       content: "hello world",
     });
@@ -183,10 +183,10 @@ it('should send messages to other user in private room',(done)=>{
 
     });
 
-    clientSocket.emit("newMessage", roomName,{
+    clientSocket.emit("newMessage", clientSocket2.id,{
       senderId: clientSocket.id,
-      reciverId:clientSocket2.id,
-      room: roomName,
+      receiverId:clientSocket2.id,
+      room: clientSocket2.id,
       isPublic:false,
       content: "hello world",
     });
@@ -256,11 +256,11 @@ it('should get messages in a private room',async()=>{
     // console.log(messages);
     expect(messages[0]).to.have.deep.property('content','eh yacta');
     expect(messages[0]).to.have.deep.property('senderId',clientSocket.id);
-    expect(messages[0]).to.have.deep.property('reciverId','12345');
+    expect(messages[0]).to.have.deep.property('receiverId','12345');
     expect(messages[0]).to.have.deep.property('isPublic',false);
     expect(messages[1]).to.have.deep.property('content','brdo eh yacta');
     expect(messages[1]).to.have.deep.property('senderId',clientSocket.id);
-    expect(messages[1]).to.have.deep.property('reciverId','12345');
+    expect(messages[1]).to.have.deep.property('receiverId','12345');
     expect(messages[1]).to.have.deep.property('isPublic',false);
     clientSocket.disconnect();
   };
@@ -269,22 +269,22 @@ it('should get messages in a private room',async()=>{
   clientSocket.once("newMessage", async () => {
     await CreateMessage({
       senderId:clientSocket.id,
-      reciverId:'12345',
-      room:roomName,
+      receiverId:'12345',
+      room:'12345',
       isPublic:false,
       content:'eh yacta'
       });
       await CreateMessage({
         senderId:clientSocket.id,
         reciverId:'12345',
-        room:roomName,
+        room:'12345',
         isPublic:false,
         content:'brdo eh yacta'
         });
 
   clientSocket.once('getMessages',getMessagesTest);
 
-  clientSocket.emit('getMessages',roomName,false);  
+  clientSocket.emit('getMessages','12345',false);  
 });
 
 

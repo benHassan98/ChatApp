@@ -109,7 +109,7 @@ io.on("connection", (socket) => {
     if (message.isPublic) {
       socket.to(room).emit("newMessage", message);
     } else {
-      socket.to(message.reciverId).emit("newMessage", message);
+      socket.to(message.receiverId).emit("newMessage", message);
     }
   });
 

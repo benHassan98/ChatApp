@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const MessageSchema = new Schema({
   senderId: String,
-  reciverId: String,
+  receiverId: String,
   room: String,
   isPublic:Boolean,
   content: String,
