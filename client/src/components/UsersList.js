@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "../styles/UsersList.css";
 const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
   const [roomUsers, setRoomUsers] = useState([]);
@@ -20,6 +20,7 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
           const newSender = JSON.parse(senderSerialized);
 
           newSender.messageCnt = 1;
+          newSender.ref = useRef();
           setChatUsers([...chatUsers, newSender]);
         }
       }
@@ -45,12 +46,18 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
                   "list-group-item d-flex justify-content-between align-items-center list-group-item-action" +
                   (user.userName === userName ? " disabled" : "")
                 }
-                onDoubleClick={() =>
-                  setChatUsers([...chatUsers, { ...user, messageCnt: 0 }])
-                }
                 key={id}
               >
-                <p>{user.userName}</p>
+                <p
+                  onDoubleClick={() =>
+                    setChatUsers([
+                      ...chatUsers,
+                      { ...user, messageCnt: 0, ref: useRef() },
+                    ])
+                  }
+                >
+                  {user.userName}
+                </p>
               </div>
             );
           })}
@@ -63,14 +70,22 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
             {chatUsers.map((user, id) => {
               return (
                 <div
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                  onClick={() => {
-                    setRoom(user.id);
-                    setIsPublic(false);
-                  }}
                   key={id}
+                  className="list-group-item d-flex justify-content-between align-items-center"
+                  ref={user.ref}
                 >
-                  <p>{user.userName}</p>
+                  <p
+                    onClick={() => {
+                      chatUsers.forEach(({ ref }) =>
+                        ref.current.classList.remove("active")
+                      );
+                      user.ref.classList.add("active");
+                      setRoom(user.id);
+                      setIsPublic(false);
+                    }}
+                  >
+                    {user.userName}
+                  </p>
 
                   <button
                     type="button"
@@ -80,6 +95,13 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
                       "--bs-btn-padding-x": ".5rem",
                       "--bs-btn-font-size": ".75rem",
                     }}
+                    onClick={() =>
+                      setChatUsers(
+                        chatUsers.filter(
+                          ({ userName }) => userName === user.userName
+                        )
+                      )
+                    }
                   >
                     Close Chat
                   </button>
