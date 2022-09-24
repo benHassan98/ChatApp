@@ -106,11 +106,8 @@ io.on("connection", (socket) => {
 
   socket.on("newMessage", async (room, message) => {
     await CreateMessage(message);
-    if (message.isPublic) {
-      socket.to(room).emit("newMessage", message);
-    } else {
-      socket.to(message.receiverId).emit("newMessage", message);
-    }
+    socket.to(room).emit("newMessage", message);
+    
   });
 
   socket.on("getMessages", async (room, isPublic) => {

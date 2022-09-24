@@ -9,12 +9,19 @@ const Board = ({ socket, room, isPublic }) => {
   }, [room]);
   useEffect(() => {
     const getMessageListener = (receivedMessages) => {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
       setMessages(receivedMessages);
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    };
+    const newMessageListener = (message) => {
+      setMessages([...messages, message]);
     };
     socket.on("getMessages", getMessageListener);
+    socket.on("newMessage", newMessageListener);
 
-    return () => socket.removeListener("getMessages", getMessageListener);
+    return () => {
+      socket.removeListener("getMessages", getMessageListener);
+      socket.removeListener("newMessage", newMessageListener);
+    };
   }, [socket]);
 
   return (
@@ -59,8 +66,8 @@ const Board = ({ socket, room, isPublic }) => {
                 content: textAreaRef.current.value,
               };
               if (!isPublic) message.reveiverId = room;
-              setMessages([...messages,message]);
-              socket.emit('newMessage',room,message);
+              setMessages([...messages, message]);
+              socket.emit("newMessage", room, message);
             }
           }}
         >

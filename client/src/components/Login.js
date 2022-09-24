@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/Login.css";
-const Login = ({socket, setUserName,}) => {
+const Login = ({socket, setUserName}) => {
   const userNameRef = useRef();
   const userNameErrorRef = useRef();
   const [usersNames,setUsersNames] = useState([]);
@@ -27,7 +27,7 @@ const Login = ({socket, setUserName,}) => {
   },[]);
   useEffect(() => {
     const listener = (users) => {
-        setUsersNames([...new Set(users.map(user=>user.userName))]);
+        setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
       };
     socket.on("chatUsers", listener);
 
