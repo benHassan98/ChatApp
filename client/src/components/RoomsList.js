@@ -87,7 +87,18 @@ const RoomsList = ({ socket, room, setRoom, setIsPublic }) => {
                   id={id}
                   ref={ref}
                 >
-                  <p>{name}</p>
+                  <p
+                    onClick={() => {
+                      rooms.forEach(({ ref }) =>
+                        ref.current.classList.remove("active")
+                      );
+                      ref.current.classList.add("active");
+                      setRoom(name);
+                      setIsPublic(true);
+                    }}
+                  >
+                    {name}
+                  </p>
                   {!isJoined && (
                     <button
                       type="button"

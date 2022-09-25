@@ -11,3 +11,7 @@ body {
 .list-group-item:hover button {
   opacity: 100;
 }
+
+.active button {
+  opacity: 100;
+}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../styles/UsersList.css";
-const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
+const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
   const [roomUsers, setRoomUsers] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
 
@@ -82,6 +82,7 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic }) => {
                       user.ref.classList.add("active");
                       setRoom(user.id);
                       setIsPublic(false);
+                      setIsJoined(true);
                     }}
                   >
                     {user.userName}

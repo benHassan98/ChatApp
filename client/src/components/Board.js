@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/Board.css";
-const Board = ({ socket, room, isPublic }) => {
+const Board = ({ socket, room, isPublic, isJoined }) => {
   const [messages, setMessages] = useState([]);
   const textAreaRef = useRef();
   const bottomRef = useRef();
@@ -57,6 +57,7 @@ const Board = ({ socket, room, isPublic }) => {
         <label HtmlFor="floatingTextarea">Message...</label>
         <button
           className="btn btn-primary"
+          disabled={isJoined}
           onClick={() => {
             if (textAreaRef.current.value !== "") {
               const message = {
