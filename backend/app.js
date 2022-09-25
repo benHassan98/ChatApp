@@ -42,7 +42,7 @@ const leaveRoom = (userId, room) => {
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
   socket.on("newUser", async (userName, room) => {
-    console.log("newUser: ", socket.id);
+    console.log("newUser: ", userName, socket.id);
     const user = {
       id: socket.id,
       userName,
@@ -107,7 +107,6 @@ io.on("connection", (socket) => {
   socket.on("newMessage", async (room, message) => {
     await CreateMessage(message);
     socket.to(room).emit("newMessage", message);
-    
   });
 
   socket.on("getMessages", async (room, isPublic) => {
