@@ -276,7 +276,7 @@ it('should get messages in a private room',async()=>{
       });
       await CreateMessage({
         senderId:clientSocket.id,
-        reciverId:'12345',
+        receiverId:'12345',
         room:'12345',
         isPublic:false,
         content:'brdo eh yacta'
