@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import Login from "./components/Login";
+import ChatPage from "./components/ChatPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { io } from "socket.io-client";
 
 const App = () => {
   const socket = io(process.env.REACT_APP_API_URL);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState(undefined);
 
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ const App = () => {
           path="/"
           element={<Login socket={socket} setUserName={setUserName} />}
         />
+        {userName && <Route element={ChatPage} path='/chat'/>}
       </Routes>
     </BrowserRouter>
   );
