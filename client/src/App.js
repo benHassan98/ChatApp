@@ -15,7 +15,12 @@ const App = () => {
           path="/"
           element={<Login socket={socket} setUserName={setUserName} />}
         />
-        {userName && <Route element={ChatPage} path='/chat'/>}
+        {userName && (
+          <Route
+            element={<ChatPage socket={socket} userName={userName} />}
+            path="/chat"
+          />
+        )}
       </Routes>
     </BrowserRouter>
   );

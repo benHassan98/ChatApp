@@ -42,7 +42,7 @@ const leaveRoom = (userId, room) => {
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
   socket.on("newUser", async (userName, room) => {
-    console.log("in newUser: ", socket.id);
+    console.log("newUser: ", socket.id);
     const user = {
       id: socket.id,
       userName,
@@ -118,7 +118,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("disconnect: ", socket.id);
-    usersInfo[socket.id].rooms.forEach(async (room) => {
+    usersInfo[socket.id]?.rooms.forEach(async (room) => {
       roomsLists[room] = roomsLists[room].filter(
         (user) => user.id !== socket.id
       );

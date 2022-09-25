@@ -42,7 +42,7 @@ const RoomsList = ({ socket, room, setRoom, setIsPublic }) => {
     };
     socket.on("chatUsers", chatUsersListener);
 
-    return () => socket.removeListner("chatUsers", chatUsersListener);
+    return () => socket.off("chatUsers", chatUsersListener);
   }, [socket]);
 
   return (
@@ -59,7 +59,7 @@ const RoomsList = ({ socket, room, setRoom, setIsPublic }) => {
 
       <div
         className="offcanvas offcanvas-end"
-        tabindex="-1"
+        tabIndex="-1"
         id="offcanvasRight"
         aria-labelledby="offcanvasRightLabel"
       >

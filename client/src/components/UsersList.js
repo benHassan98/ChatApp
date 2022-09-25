@@ -29,8 +29,8 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
     socket.on("newMessage", newMessageListener);
 
     return () => {
-      socket.removeListener("chatUsers", chatUsersListener);
-      socket.removeListener("newMessage", newMessageListener);
+      socket.off("chatUsers", chatUsersListener);
+      socket.off("newMessage", newMessageListener);
     };
   }, [socket]);
 

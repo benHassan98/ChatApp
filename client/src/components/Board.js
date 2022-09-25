@@ -19,8 +19,8 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
     socket.on("newMessage", newMessageListener);
 
     return () => {
-      socket.removeListener("getMessages", getMessageListener);
-      socket.removeListener("newMessage", newMessageListener);
+      socket.off("getMessages", getMessageListener);
+      socket.off("newMessage", newMessageListener);
     };
   }, [socket]);
 
@@ -54,7 +54,7 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
           style={{ height: "70px" }}
           ref={textAreaRef}
         ></textarea>
-        <label HtmlFor="floatingTextarea">Message...</label>
+        <label htmlFor="floatingTextarea">Message...</label>
         <button
           className="btn btn-primary"
           disabled={isJoined}
