@@ -43,18 +43,18 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
             return (
               <div
                 className={
-                  "list-group-item d-flex justify-content-between align-items-center list-group-item-action" +
-                  (user.userName === userName ? " disabled" : "")
+                  "list-group-item d-flex justify-content-between align-items-center list-group-item-action"
                 }
                 key={id}
               >
                 <p
-                  onDoubleClick={() =>
-                    setChatUsers([
-                      ...chatUsers,
-                      { ...user, messageCnt: 0, ref: useRef() },
-                    ])
-                  }
+                  onDoubleClick={() => {
+                    if (user.userName !== userName)
+                      setChatUsers([
+                        ...chatUsers,
+                        { ...user, messageCnt: 0, ref: useRef() },
+                      ]);
+                  }}
                 >
                   {user.userName}
                 </p>

@@ -6,15 +6,8 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const CreateMessage = require("./utils/CreateMessage");
 const GetMessages = require("./utils/GetMessages");
-const mongoose = require("mongoose");
 const app = express();
 
-if (process.env.NODE_ENV === "production") {
-  mongoose.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-}
 
 app.use(cors());
 app.use(logger("dev"));
@@ -63,6 +56,7 @@ io.on("connection", (socket) => {
     socket.join(room);
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
+    console.log('newUser END');
   });
   socket.on("getAllUsers", () => {
     const allUsersNames = Object.entries(usersInfo).reduce(
@@ -87,6 +81,7 @@ io.on("connection", (socket) => {
     socket.join(room);
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
+    console.log('joinRoom END');
   });
 
   socket.on("leaveRoom", async (room) => {
@@ -102,6 +97,7 @@ io.on("connection", (socket) => {
     socket.leave(room);
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
+    console.log('leaveRoom END');
   });
 
   socket.on("newMessage", async (room, message) => {
