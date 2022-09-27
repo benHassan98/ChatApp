@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
+// import socket from "../services/socket";
 import "../styles/UsersList.css";
-const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
+const UsersList = ({socket,  userName, setRoom, setIsPublic, setIsJoined }) => {
   const [roomUsers, setRoomUsers] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
-
+ 
   useEffect(() => {
     const chatUsersListener = (users) => {
       setRoomUsers(users);

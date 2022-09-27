@@ -59,12 +59,14 @@ io.on("connection", (socket) => {
     console.log('newUser END');
   });
   socket.on("getAllUsers", () => {
+    console.log('getAllUsers');
     const allUsersNames = Object.entries(usersInfo).reduce(
       (prev, [, user]) => [...prev, user],
       []
     );
 
     socket.emit("chatUsers", allUsersNames);
+    console.log('getAllUsers END');
   });
   socket.on("joinRoom", async (room) => {
     if (!roomsLists[room]) roomsLists[room] = [];

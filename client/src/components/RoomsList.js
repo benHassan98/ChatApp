@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+// import socket from "../services/socket";
 import "../styles/RoomsList.css";
-const RoomsList = ({ socket, room, setRoom, setIsPublic }) => {
+const RoomsList = ({socket,  room, setRoom, setIsPublic }) => {
   const [rooms, setRooms] = useState([]);
   const createRoomRef = useRef();
   const createRoominputRef = useRef();

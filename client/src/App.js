@@ -1,25 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Login from "./components/Login";
 import ChatPage from "./components/ChatPage";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import socket from "./services/socket";
+import { io } from "socket.io-client";
 
+const socket = io(process.env.REACT_APP_API_URL);
 const App = () => {
   const [userName, setUserName] = useState(undefined);
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Login socket={socket} setUserName={setUserName} />}
-        />
-        <Route
-          element={<ChatPage socket={socket} userName={userName} />}
-          path="/chat"
-        />
-      </Routes>
-    </BrowserRouter>
-  );
+  if (!userName) return <Login socket={socket} setUserName={setUserName} />;
+  else return <ChatPage socket={socket} userName={userName} />;
 };
 export default App;

@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import socket from "../services/socket";
 import "../styles/Login.css";
 const Login = ({socket, setUserName}) => {
   const [usersNames,setUsersNames] = useState([]);
   const userNameRef = useRef();
   const userNameErrorRef = useRef();
-  const navigate = useNavigate();
   const validateUserName = (e) => {
     e.preventDefault();
     userNameRef.current.className = "form-control";
@@ -21,20 +20,28 @@ const Login = ({socket, setUserName}) => {
       userNameErrorRef.current.textContent = "UserName is already used";
     } else {
       setUserName(userNameRef.current.value);
-      navigate('/chat');
+      socket.emit("newUser", userNameRef.current.value, 'Public');
     }
   };
 
-  useEffect(()=>{
-    socket.emit("getAllUsers");
-  },[]);
-  useEffect(() => {
-    const listener = (users) => {
-        setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
-      };
-    socket.on("chatUsers", listener);
+  // useEffect(()=>{
+  //   socket.emit("getAllUsers");
+  //   const listener = (users) => {
+  //     setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
+  //   };
+  // socket.on("chatUsers", listener);
 
-    return ()=>socket.removeListener('chatUsers',listener);
+  // return ()=>socket.off('chatUsers',listener);
+  // },[]);
+  useEffect(() => {
+    socket.emit("getAllUsers");
+    const listener = (users) => {
+      setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
+    };
+  socket.on("chatUsers", listener);
+
+  return ()=>socket.off('chatUsers',listener);
+    
   }, [socket]);
   return (
     <div
