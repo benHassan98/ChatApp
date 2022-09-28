@@ -35,7 +35,8 @@ const Login = ({socket, setUserName}) => {
   // },[]);
   useEffect(() => {
     socket.emit("getAllUsers");
-    const listener = (users) => {
+    const listener = (users,x) => {
+      console.log('login',users,x);
       setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
     };
   socket.on("chatUsers", listener);

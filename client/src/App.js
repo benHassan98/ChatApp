@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Login from "./components/Login";
 import ChatPage from "./components/ChatPage";
 import { io } from "socket.io-client";

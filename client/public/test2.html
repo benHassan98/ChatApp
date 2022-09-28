@@ -36,9 +36,9 @@
     .my-div {
         display: flex;
         flex-direction: column;
-        /* width: 500px;
-        height: 500px; */
-        gap: 5px;
+        width: 500px;
+        height: 500px;
+        /* gap: 5px; */
     }
  
     p{
@@ -46,11 +46,13 @@
     }
     .p1,.p2,.p3{
         max-width: 600px;
-        border-radius: 6px;
+        border-radius: 16px;
         padding: 12px;
     }
     .p1{
         align-self: center;
+        display: flex;
+        flex-direction: column;
     }
     .p2{
         align-self: flex-start;
@@ -67,7 +69,7 @@
 
 <body>
 
-
+<!-- 
     <div class="shadow p-3 mb-5 bg-body rounded my-div">
 
 <h3 class="text-center ">Chat App</h3>
@@ -84,9 +86,23 @@
 
 
 
-    </div>
+    </div> -->
 
-    <div class="root">
+    <div class="my-div">
+
+        <div class="p1 text-center bg-dark text-white">
+            <p>Someone joined the Room</p>
+            <p style="align-self: flex-end">2 seconds ago</p>
+        </div>
+        <div class="p2 text-center bg-dark text-white">
+            <p>hi someone</p>
+        </div>
+        <div class="p3 text-center bg-dark text-white">
+            <p>hey bruh</p>
+        </div>
+        <div class="p3 text-center bg-dark text-white">
+            <p>how ya doin</p>
+        </div>
 
 
     </div>

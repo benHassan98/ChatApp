@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/Board.css";
-const Board = ({socket,  room, isPublic, isJoined }) => {
+const Board = ({ socket, room, isPublic, isJoined }) => {
   const [messages, setMessages] = useState([]);
   const textAreaRef = useRef();
   const bottomRef = useRef();
@@ -11,7 +11,6 @@ const Board = ({socket,  room, isPublic, isJoined }) => {
   useEffect(() => {
     const getMessageListener = (receivedMessages) => {
       setMessages(receivedMessages);
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
     };
     const newMessageListener = (message) => {
       setMessages([...messages, message]);
@@ -24,7 +23,9 @@ const Board = ({socket,  room, isPublic, isJoined }) => {
       socket.off("newMessage", newMessageListener);
     };
   }, [socket]);
-
+  useEffect(() => {
+    bottomRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
   return (
     <div className="board">
       <div className="messages">
@@ -58,7 +59,7 @@ const Board = ({socket,  room, isPublic, isJoined }) => {
         <label htmlFor="floatingTextarea">Message...</label>
         <button
           className="btn btn-primary"
-          disabled={isJoined}
+          disabled={!isJoined}
           onClick={() => {
             if (textAreaRef.current.value !== "") {
               const message = {

@@ -15,3 +15,14 @@
 .active button {
   opacity: 100;
 }
+
+.chats-div.list-group-item,
+.rooms .list-group-item {
+  display: flex;
+  gap: 5px;
+}
+
+.chats-div p,
+.rooms p {
+  flex: 1;
+}

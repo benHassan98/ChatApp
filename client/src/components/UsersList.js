@@ -1,15 +1,16 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/UsersList.css";
-const UsersList = ({socket,  userName, setRoom, setIsPublic, setIsJoined }) => {
+const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
   const [roomUsers, setRoomUsers] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
- 
   useEffect(() => {
-    const chatUsersListener = (users) => {
+    const chatUsersListener = (users, x) => {
+      console.log(users, x);
       setRoomUsers(users);
     };
     const newMessageListener = (message) => {
+      console.log(message);
       if (!message.isPublic) {
         const sender = chatUsers.find((user) => user.id === message.senderId);
         if (sender) {
@@ -47,24 +48,28 @@ const UsersList = ({socket,  userName, setRoom, setIsPublic, setIsJoined }) => {
                   "list-group-item d-flex justify-content-between align-items-center list-group-item-action"
                 }
                 key={id}
+                onClick={() => {
+                  console.log("im in");
+                  if (
+                    user.userName !== userName &&
+                    !chatUsers.find(
+                      ({ userName }) => userName === user.userName
+                    )
+                  ) {
+                    setChatUsers([
+                      ...chatUsers,
+                      { ...user, messageCnt: 0, isActive: false },
+                    ]);
+                  }
+                }}
               >
-                <p
-                  onDoubleClick={() => {
-                    if (user.userName !== userName)
-                      setChatUsers([
-                        ...chatUsers,
-                        { ...user, messageCnt: 0, ref: useRef() },
-                      ]);
-                  }}
-                >
-                  {user.userName}
-                </p>
+                <p>{user.userName}</p>
               </div>
             );
           })}
         </div>
       </div>
-      {chatUsers.length && (
+      {Boolean(chatUsers.length) && (
         <div className="chats-div">
           <div className="text-center">On Going Chats</div>
           <div className="list-group">
@@ -72,15 +77,19 @@ const UsersList = ({socket,  userName, setRoom, setIsPublic, setIsJoined }) => {
               return (
                 <div
                   key={id}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                  ref={user.ref}
+                  className={
+                    "list-group-item d-flex justify-content-between align-items-center" +
+                    (user.isActive ? " active" : "")
+                  }
                 >
                   <p
                     onClick={() => {
-                      chatUsers.forEach(({ ref }) =>
-                        ref.current.classList.remove("active")
+                      setChatUsers(
+                        chatUsers.map((user2) => ({
+                          ...user2,
+                          isActive: user.userName === user2.userName,
+                        }))
                       );
-                      user.ref.classList.add("active");
                       setRoom(user.id);
                       setIsPublic(false);
                       setIsJoined(true);
@@ -100,14 +109,14 @@ const UsersList = ({socket,  userName, setRoom, setIsPublic, setIsJoined }) => {
                     onClick={() =>
                       setChatUsers(
                         chatUsers.filter(
-                          ({ userName }) => userName === user.userName
+                          ({ userName }) => userName !== user.userName
                         )
                       )
                     }
                   >
                     Close Chat
                   </button>
-                  {user.messageCnt && (
+                  {Boolean(user.messageCnt) && (
                     <span className="badge bg-danger rounded-pill">
                       {user.messageCnt}
                     </span>

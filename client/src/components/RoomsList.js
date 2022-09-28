@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/RoomsList.css";
-const RoomsList = ({socket,  room, setRoom, setIsPublic }) => {
+const RoomsList = ({ socket, room, isJoined,setRoom, setIsPublic }) => {
   const [rooms, setRooms] = useState([]);
   const createRoomRef = useRef();
   const createRoominputRef = useRef();
@@ -20,23 +20,23 @@ const RoomsList = ({socket,  room, setRoom, setIsPublic }) => {
       createRoominputRef.current.classList.add("is-invalid");
       createRoomErrorRef.current.textContent = "Room Name already exists";
     } else {
-      setRooms([...rooms, createRoominputRef.current.value]);
+      socket.emit('joinRoom',createRoominputRef.current.value);
+      setRooms([...rooms, {isActive:false,messageCnt:1,name:createRoominputRef.current.value,isJoined:true}]);
     }
   };
+
   useEffect(() => {
     socket.emit("getAllusers");
-  }, []);
-  useEffect(() => {
     const chatUsersListener = (users) => {
       const newRooms = users
         .map(({ rooms }) => rooms)
         .flat()
         .filter((room) => !Boolean(rooms.find(({ name }) => room === name)))
-        .map((room) => ({
-          ref: useRef(),
+        .map((roomName) => ({
+          isActive: roomName === room,
           messageCnt: 0,
-          name: room,
-          isJoined: false,
+          name: roomName,
+          isJoined,
         }));
 
       setRooms([...rooms, ...newRooms]);
@@ -81,19 +81,18 @@ const RoomsList = ({socket,  room, setRoom, setIsPublic }) => {
           style={{ display: "flex", flexDirection: "column", gap: "10px" }}
         >
           <div className="list-group">
-            {rooms.map(({ name, ref, isJoined, messageCnt }, id) => {
+            {rooms.map(({ name, isActive, isJoined, messageCnt }, id) => {
               return (
                 <div
-                  className="list-group-item d-flex justify-content-between align-items-center "
-                  id={id}
-                  ref={ref}
+                  className={
+                    "list-group-item d-flex justify-content-between align-items-center " +
+                    (isActive ? "active" : "")
+                  }
+                  key={id}
                 >
                   <p
                     onClick={() => {
-                      rooms.forEach(({ ref }) =>
-                        ref.current.classList.remove("active")
-                      );
-                      ref.current.classList.add("active");
+                      setRooms(rooms.map(i=>({...i,isActive:name===room})));
                       setRoom(name);
                       setIsPublic(true);
                     }}
@@ -146,7 +145,7 @@ const RoomsList = ({socket,  room, setRoom, setIsPublic }) => {
                       Leave Room
                     </button>
                   )}
-                  {messageCnt && (
+                  {Boolean(messageCnt) && (
                     <span className="badge bg-danger rounded-pill">
                       {messageCnt}
                     </span>

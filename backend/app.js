@@ -35,7 +35,7 @@ const leaveRoom = (userId, room) => {
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
   socket.on("newUser", async (userName, room) => {
-    console.log("newUser: ", userName, socket.id);
+    console.log("newUser: ", userName,room, socket.id);
     const user = {
       id: socket.id,
       userName,
@@ -56,19 +56,20 @@ io.on("connection", (socket) => {
     socket.join(room);
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
-    console.log('newUser END');
+    console.log('newUser END',socket.id);
   });
   socket.on("getAllUsers", () => {
-    console.log('getAllUsers');
+    console.log('getAllUsers',socket.id);
     const allUsersNames = Object.entries(usersInfo).reduce(
       (prev, [, user]) => [...prev, user],
       []
     );
 
-    socket.emit("chatUsers", allUsersNames);
-    console.log('getAllUsers END');
+    socket.emit("chatUsers", allUsersNames,true);
+    console.log('getAllUsers END',socket.id);
   });
   socket.on("joinRoom", async (room) => {
+    console.log('joinRoom',room,socket.id);
     if (!roomsLists[room]) roomsLists[room] = [];
     const message = {
       senderId: "ChatBot",
@@ -83,10 +84,11 @@ io.on("connection", (socket) => {
     socket.join(room);
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
-    console.log('joinRoom END');
+    console.log('joinRoom END',socket.id);
   });
 
   socket.on("leaveRoom", async (room) => {
+    console.log('leaveRoom',room,socket.id);
     const message = {
       senderId: "ChatBot",
       room,
@@ -99,18 +101,22 @@ io.on("connection", (socket) => {
     socket.leave(room);
     io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
-    console.log('leaveRoom END');
+    console.log('leaveRoom END',socket.id);
   });
 
   socket.on("newMessage", async (room, message) => {
+    console.log('newMessage',room,message,socket.id);
     await CreateMessage(message);
     socket.to(room).emit("newMessage", message);
+    console.log('newMessage END',socket.id);
   });
 
   socket.on("getMessages", async (room, isPublic) => {
+    console.log('getMessages',room,isPublic,socket.id);
     const messages = await GetMessages(room, isPublic, socket.id);
 
     socket.emit("getMessages", messages);
+    console.log('getMessages END',socket.id);
   });
 
   socket.on("disconnect", () => {
