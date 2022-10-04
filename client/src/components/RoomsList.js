@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/RoomsList.css";
-const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
+const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
   const [rooms, setRooms] = useState([]);
   const createRoomRef = useRef();
   const createRoominputRef = useRef();
@@ -22,34 +22,69 @@ const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
     } else {
       const newRoomName = createRoominputRef.current.value;
       createRoominputRef.current.value = "";
-      console.log("rooms before join", rooms);
       setRoom(newRoomName);
       setIsPublic(true);
       setIsJoined(true);
+      setRooms((prevState) => [
+        ...prevState.map((room) => ({ ...room, isActive: false })),
+        {
+          name: newRoomName,
+          isActive: true,
+          isJoined: true,
+          messageCnt: 0,
+        },
+      ]);
       socket.emit("joinRoom", newRoomName);
     }
   };
 
   useEffect(() => {
-    socket.emit("getAllusers");
-    const chatUsersListener = (users) => {
-      const joinedRooms = users.find(({ id }) => socket.id === id).rooms;
-      const newRooms = users
-        .map(({ rooms }) => rooms)
-        .flat()
-        .filter((room) => !Boolean(rooms.find(({ name }) => room === name)))
-        .map((roomName) => ({
-          isActive: roomName === room,
-          messageCnt: roomName === room ? 0 : 1,
-          name: roomName,
-          isJoined: joinedRooms.includes(roomName),
-        }));
-      console.log("rooms chatusers", rooms, newRooms);
-      setRooms([...rooms, ...newRooms]);
-    };
-    socket.on("chatUsers", chatUsersListener);
+    socket.emit("getAllRooms");
+    const getAllRoomsListener = (allRooms) => {
+      setRooms((prevState) => {
+        const newRooms = allRooms.map((roomName) => {
+          prevState.find((i) => i.name === roomName)
+            ? prevState.find((i) => i.name === roomName)
+            : {
+                name: roomName,
+                isActive: false,
+                isJoined: false,
+                messageCnt: 0,
+              };
+        });
 
-    return () => socket.off("chatUsers", chatUsersListener);
+        return newRooms;
+      });
+    };
+    const newRoomsListener = (roomName) => {
+      setRooms((prevState) => [
+        ...prevState,
+        { name: roomName, isActive: false, isJoined: false, messageCnt: 0 },
+      ]);
+    };
+    const newMessageListener = (message) => {
+      if (
+        message.isPublic &&
+        rooms.find((room) => room.name === message.room && room.isJoined)
+      ) {
+        setRooms((prevState) =>
+          prevState.map((room) =>
+            room.name === message.room
+              ? { ...room, messageCnt: room.messageCnt + 1 }
+              : room
+          )
+        );
+      }
+    };
+    socket.on("getAllRooms", getAllRoomsListener);
+    socket.on("newRoom", newRoomsListener);
+    socket.on('newMessage',newMessageListener);
+
+    return () => {
+      socket.off("getAllRooms", getAllRoomsListener);
+      socket.off("newRoom", newRoomsListener);
+      socket.off('newMessage',newMessageListener);
+    };
   }, []);
 
   return (
@@ -98,15 +133,16 @@ const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
                 >
                   <p
                     onClick={() => {
-                      setRooms(
-                        rooms.map((i) => ({
-                          ...i,
-                          isActive: i.name === name,
-                          messageCnt: i.name === name ? 0 : i.messageCnt,
-                        }))
+                      setRooms((prevState) =>
+                        prevState.map((room) =>
+                          room.name === name
+                            ? { ...room, isActive: true, messageCnt: 0 }
+                            : { ...room, isActive: false }
+                        )
                       );
                       setRoom(name);
                       setIsPublic(true);
+                      setIsJoined(isJoined);
                     }}
                   >
                     {name}
@@ -122,8 +158,8 @@ const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
                       }}
                       onClick={() => {
                         socket.emit("joinRoom", name);
-                        setRooms(
-                          rooms.map((room) =>
+                        setRooms((prevState) =>
+                          prevState.map((room) =>
                             room.name === name
                               ? { ...room, isJoined: true }
                               : room
@@ -145,8 +181,8 @@ const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
                       }}
                       onClick={() => {
                         socket.emit("leaveRoom", name);
-                        setRooms(
-                          rooms.map((room) =>
+                        setRooms((prevState) =>
+                          prevState.map((room) =>
                             room.name === name
                               ? { ...room, isJoined: false, messageCnt: 0 }
                               : room

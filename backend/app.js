@@ -8,7 +8,6 @@ const CreateMessage = require("./utils/CreateMessage");
 const GetMessages = require("./utils/GetMessages");
 const app = express();
 
-
 app.use(cors());
 app.use(logger("dev"));
 
@@ -35,7 +34,7 @@ const leaveRoom = (userId, room) => {
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} is connected`);
   socket.on("newUser", async (userName, room) => {
-    console.log("newUser: ", userName,room, socket.id);
+    console.log("newUser: ", userName, room, socket.id);
     const user = {
       id: socket.id,
       userName,
@@ -54,28 +53,29 @@ io.on("connection", (socket) => {
     await CreateMessage(message);
 
     socket.join(room);
-    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room], room);
     io.sockets.in(room).emit("newMessage", message);
-    console.log('newUser END',socket.id);
+    console.log("newUser END", socket.id);
   });
   socket.on("getAllUsers", () => {
-    console.log('getAllUsers',socket.id);
-    const allUsersNames = Object.entries(usersInfo).map(user=>user[1]);
-     
-    socket.emit("chatUsers", allUsersNames,true);
-    console.log('getAllUsers END',socket.id);
+    console.log("getAllUsers", socket.id);
+    const allUsersNames = Object.entries(usersInfo).map((user) => user[1]);
+
+    socket.emit("chatUsers", allUsersNames, true);
+    console.log("getAllUsers END", socket.id);
   });
-  socket.on('getAllRooms',()=>{
-    console.log('getAllRooms',socket.id);
-    const allRooms = Object.entries(roomsLists).map(room=>room[0]);
-    socket.emit('getAllRooms',allRooms);
+  socket.on("getAllRooms", () => {
+    console.log("getAllRooms", socket.id);
+    const allRooms = Object.entries(roomsLists).map((room) => room[0]);
+    socket.emit("getAllRooms", allRooms);
   });
-  socket.on('newRoom',(room)=>{
-    socket.broadcast.emit('newRoom',room);
-  });
+
   socket.on("joinRoom", async (room) => {
-    console.log('joinRoom',room,socket.id);
-    if (!roomsLists[room]) roomsLists[room] = [];
+    console.log("joinRoom", room, socket.id);
+    if (!roomsLists[room]) {
+      roomsLists[room] = [];
+      socket.broadcast.emit("newRoom", room);
+    }
     const message = {
       senderId: "ChatBot",
       room,
@@ -87,13 +87,13 @@ io.on("connection", (socket) => {
     roomsLists[room].push(usersInfo[socket.id]);
     await CreateMessage(message);
     socket.join(room);
-    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room], room);
     io.sockets.in(room).emit("newMessage", message);
-    console.log('joinRoom END',socket.id);
+    console.log("joinRoom END", socket.id);
   });
 
   socket.on("leaveRoom", async (room) => {
-    console.log('leaveRoom',room,socket.id);
+    console.log("leaveRoom", room, socket.id);
     const message = {
       senderId: "ChatBot",
       room,
@@ -104,24 +104,24 @@ io.on("connection", (socket) => {
     roomsLists[room] = roomsLists[room].filter((user) => user.id !== socket.id);
     await CreateMessage(message);
     socket.leave(room);
-    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room], room);
     io.sockets.in(room).emit("newMessage", message);
-    console.log('leaveRoom END',socket.id);
+    console.log("leaveRoom END", socket.id);
   });
 
   socket.on("newMessage", async (room, message) => {
-    console.log('newMessage',room,message,socket.id);
+    console.log("newMessage", room, message, socket.id);
     await CreateMessage(message);
     socket.to(room).emit("newMessage", message);
-    console.log('newMessage END',socket.id);
+    console.log("newMessage END", socket.id);
   });
 
   socket.on("getMessages", async (room, isPublic) => {
-    console.log('getMessages',room,isPublic,socket.id);
+    console.log("getMessages", room, isPublic, socket.id);
     const messages = await GetMessages(room, isPublic, socket.id);
 
     socket.emit("getMessages", messages);
-    console.log('getMessages END',socket.id);
+    console.log("getMessages END", socket.id);
   });
 
   socket.on("disconnect", () => {
@@ -130,8 +130,8 @@ io.on("connection", (socket) => {
       roomsLists[room] = roomsLists[room].filter(
         (user) => user.id !== socket.id
       );
-      socket.to(room).emit("chatUsers", roomsLists[room]);
       socket.leave(room);
+      socket.to(room).emit("chatUsers", roomsLists[room], room);
     });
 
     delete usersInfo[socket.id];

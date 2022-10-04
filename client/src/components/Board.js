@@ -13,9 +13,9 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
       setMessages(receivedMessages);
     };
     const newMessageListener = (message) => {
-      console.log("Board", messages, message);
-      // if (room === message.room) 
-      setMessages([...messages, message]);
+      // console.log("Board", messages, message);
+      if (room === message.room)
+        setMessages((prevState) => [...prevState, message]);
     };
     socket.on("getMessages", getMessageListener);
     socket.on("newMessage", newMessageListener);
@@ -71,7 +71,7 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
                 content: textAreaRef.current.value,
               };
               if (!isPublic) message.reveiverId = room;
-              setMessages([...messages, message]);
+              setMessages((prevState) => [...prevState, message]);
               socket.emit("newMessage", room, message);
             }
           }}
