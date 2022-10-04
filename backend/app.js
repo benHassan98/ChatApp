@@ -60,13 +60,18 @@ io.on("connection", (socket) => {
   });
   socket.on("getAllUsers", () => {
     console.log('getAllUsers',socket.id);
-    const allUsersNames = Object.entries(usersInfo).reduce(
-      (prev, [, user]) => [...prev, user],
-      []
-    );
-
+    const allUsersNames = Object.entries(usersInfo).map(user=>user[1]);
+     
     socket.emit("chatUsers", allUsersNames,true);
     console.log('getAllUsers END',socket.id);
+  });
+  socket.on('getAllRooms',()=>{
+    console.log('getAllRooms',socket.id);
+    const allRooms = Object.entries(roomsLists).map(room=>room[0]);
+    socket.emit('getAllRooms',allRooms);
+  });
+  socket.on('newRoom',(room)=>{
+    socket.broadcast.emit('newRoom',room);
   });
   socket.on("joinRoom", async (room) => {
     console.log('joinRoom',room,socket.id);

@@ -13,6 +13,8 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
       setMessages(receivedMessages);
     };
     const newMessageListener = (message) => {
+      console.log("Board", messages, message);
+      // if (room === message.room) 
       setMessages([...messages, message]);
     };
     socket.on("getMessages", getMessageListener);
@@ -22,7 +24,7 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
       socket.off("getMessages", getMessageListener);
       socket.off("newMessage", newMessageListener);
     };
-  }, [socket]);
+  }, []);
   useEffect(() => {
     bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);

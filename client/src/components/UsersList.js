@@ -6,11 +6,11 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
   const [chatUsers, setChatUsers] = useState([]);
   useEffect(() => {
     const chatUsersListener = (users, x) => {
-      console.log(users, x);
+      // console.log(users, x);
       setRoomUsers(users);
     };
     const newMessageListener = (message) => {
-      console.log(message);
+      // console.log(message);
       if (!message.isPublic) {
         const sender = chatUsers.find((user) => user.id === message.senderId);
         if (sender) {
@@ -22,7 +22,6 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
           const newSender = JSON.parse(senderSerialized);
 
           newSender.messageCnt = 1;
-          newSender.ref = useRef();
           setChatUsers([...chatUsers, newSender]);
         }
       }
@@ -34,7 +33,7 @@ const UsersList = ({ socket, userName, setRoom, setIsPublic, setIsJoined }) => {
       socket.off("chatUsers", chatUsersListener);
       socket.off("newMessage", newMessageListener);
     };
-  }, [socket]);
+  }, []);
 
   return (
     <div className="users-list">

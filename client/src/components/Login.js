@@ -20,7 +20,7 @@ const Login = ({socket, setUserName}) => {
       userNameErrorRef.current.textContent = "UserName is already used";
     } else {
       setUserName(userNameRef.current.value);
-      socket.emit("newUser", userNameRef.current.value, 'Public');
+      
     }
   };
 
@@ -43,7 +43,7 @@ const Login = ({socket, setUserName}) => {
 
   return ()=>socket.off('chatUsers',listener);
     
-  }, [socket]);
+  }, []);
   return (
     <div
       className="shadow p-3 mb-5 bg-body rounded"

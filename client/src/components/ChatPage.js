@@ -8,6 +8,9 @@ const ChatPage = ({ socket, userName }) => {
   const [room, setRoom] = useState("Public");
   const [isJoined, setIsJoined] = useState(true);
 
+  useEffect(()=>{
+    socket.emit("newUser", userName, 'Public');
+  },[]);
   return (
     <>
       <UsersList
@@ -26,7 +29,7 @@ const ChatPage = ({ socket, userName }) => {
       <RoomsList
         socket={socket}
         room={room}
-        isJoined={isJoined}
+        setIsJoined={setIsJoined}
         setRoom={setRoom}
         setIsPublic={setIsPublic}
       />

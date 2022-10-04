@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/RoomsList.css";
-const RoomsList = ({ socket, room, isJoined,setRoom, setIsPublic }) => {
+const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
   const [rooms, setRooms] = useState([]);
   const createRoomRef = useRef();
   const createRoominputRef = useRef();
@@ -20,31 +20,37 @@ const RoomsList = ({ socket, room, isJoined,setRoom, setIsPublic }) => {
       createRoominputRef.current.classList.add("is-invalid");
       createRoomErrorRef.current.textContent = "Room Name already exists";
     } else {
-      socket.emit('joinRoom',createRoominputRef.current.value);
-      setRooms([...rooms, {isActive:false,messageCnt:1,name:createRoominputRef.current.value,isJoined:true}]);
+      const newRoomName = createRoominputRef.current.value;
+      createRoominputRef.current.value = "";
+      console.log("rooms before join", rooms);
+      setRoom(newRoomName);
+      setIsPublic(true);
+      setIsJoined(true);
+      socket.emit("joinRoom", newRoomName);
     }
   };
 
   useEffect(() => {
     socket.emit("getAllusers");
     const chatUsersListener = (users) => {
+      const joinedRooms = users.find(({ id }) => socket.id === id).rooms;
       const newRooms = users
         .map(({ rooms }) => rooms)
         .flat()
         .filter((room) => !Boolean(rooms.find(({ name }) => room === name)))
         .map((roomName) => ({
           isActive: roomName === room,
-          messageCnt: 0,
+          messageCnt: roomName === room ? 0 : 1,
           name: roomName,
-          isJoined,
+          isJoined: joinedRooms.includes(roomName),
         }));
-
+      console.log("rooms chatusers", rooms, newRooms);
       setRooms([...rooms, ...newRooms]);
     };
     socket.on("chatUsers", chatUsersListener);
 
     return () => socket.off("chatUsers", chatUsersListener);
-  }, [socket]);
+  }, []);
 
   return (
     <div className="rooms">
@@ -92,7 +98,13 @@ const RoomsList = ({ socket, room, isJoined,setRoom, setIsPublic }) => {
                 >
                   <p
                     onClick={() => {
-                      setRooms(rooms.map(i=>({...i,isActive:name===room})));
+                      setRooms(
+                        rooms.map((i) => ({
+                          ...i,
+                          isActive: i.name === name,
+                          messageCnt: i.name === name ? 0 : i.messageCnt,
+                        }))
+                      );
                       setRoom(name);
                       setIsPublic(true);
                     }}
@@ -109,7 +121,7 @@ const RoomsList = ({ socket, room, isJoined,setRoom, setIsPublic }) => {
                         "--bs-btn-font-size": ".75rem",
                       }}
                       onClick={() => {
-                        socket.emit("joinRoom", room);
+                        socket.emit("joinRoom", name);
                         setRooms(
                           rooms.map((room) =>
                             room.name === name
@@ -132,7 +144,7 @@ const RoomsList = ({ socket, room, isJoined,setRoom, setIsPublic }) => {
                         "--bs-btn-font-size": ".75rem",
                       }}
                       onClick={() => {
-                        socket.emit("leaveRoom", room);
+                        socket.emit("leaveRoom", name);
                         setRooms(
                           rooms.map((room) =>
                             room.name === name
