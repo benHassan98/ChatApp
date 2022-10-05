@@ -44,7 +44,7 @@ const Board = ({ socket,userName, room, isPublic, isJoined }) => {
               }
               key={id}
             >
-              <p>{(message.senderId!=='ChatBot'?userName+':':'')+message.content}</p>
+              <p>{(message.senderId!=='ChatBot'?message.senderName+':':'')+message.content}</p>
             </div>
           );
         })}
@@ -66,11 +66,12 @@ const Board = ({ socket,userName, room, isPublic, isJoined }) => {
             if (textAreaRef.current.value !== "") {
               const message = {
                 senderId: socket.id,
+                senderName:userName,
                 room,
                 isPublic,
                 content: textAreaRef.current.value,
               };
-              if (!isPublic) message.reveiverId = room;
+              if (!isPublic) message.receiverId = room;
               setMessages((prevState) => [...prevState, message]);
               socket.emit("newMessage", room, message);
             }

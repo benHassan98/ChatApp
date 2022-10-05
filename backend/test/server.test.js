@@ -165,7 +165,6 @@ it('should send messages to other user in private room',(done)=>{
       senderId: clientSocket.id,
       senderName:'fake4',
       receiverId:clientSocket2.id,
-      recevierName:'fake44',
       room: clientSocket2.id,
       isPublic:false,
       content: "hello world",
@@ -191,7 +190,6 @@ it('should send messages to other user in private room',(done)=>{
       senderId: clientSocket.id,
       senderName:'fake4',
       receiverId:clientSocket2.id,
-      recevierName:'fake44',
       room: clientSocket2.id,
       isPublic:false,
       content: "hello world",
@@ -268,13 +266,11 @@ it('should get messages in a private room',async()=>{
     expect(messages[0]).to.have.deep.property('senderId',clientSocket.id);
     expect(messages[0]).to.have.deep.property('senderName','fake6');
     expect(messages[0]).to.have.deep.property('receiverId','12345');
-    expect(messages[0]).to.have.deep.property('receiverName','fake66');
     expect(messages[0]).to.have.deep.property('isPublic',false);
     expect(messages[1]).to.have.deep.property('content','brdo eh yacta');
     expect(messages[1]).to.have.deep.property('senderId',clientSocket.id);
     expect(messages[1]).to.have.deep.property('senderName','fake6');
     expect(messages[1]).to.have.deep.property('receiverId','12345');
-    expect(messages[1]).to.have.deep.property('receiverName','fake66');
     expect(messages[1]).to.have.deep.property('isPublic',false);
     clientSocket.disconnect();
   };
@@ -285,7 +281,6 @@ it('should get messages in a private room',async()=>{
       senderId:clientSocket.id,
       senderName:'fake6',
       receiverId:'12345',
-      receiverName:'fake66',
       room:'12345',
       isPublic:false,
       content:'eh yacta'
@@ -294,7 +289,6 @@ it('should get messages in a private room',async()=>{
         senderId:clientSocket.id,
         senderName:'fake6',
         receiverId:'12345',
-        receiverName:'fake66',
         room:'12345',
         isPublic:false,
         content:'brdo eh yacta'
