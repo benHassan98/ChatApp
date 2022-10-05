@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/Board.css";
-const Board = ({ socket, room, isPublic, isJoined }) => {
+const Board = ({ socket,userName, room, isPublic, isJoined }) => {
   const [messages, setMessages] = useState([]);
   const textAreaRef = useRef();
   const bottomRef = useRef();
@@ -44,7 +44,7 @@ const Board = ({ socket, room, isPublic, isJoined }) => {
               }
               key={id}
             >
-              <p>{message.content}</p>
+              <p>{(message.senderId!=='ChatBot'?userName+':':'')+message.content}</p>
             </div>
           );
         })}

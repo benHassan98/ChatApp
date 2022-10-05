@@ -18,7 +18,8 @@ const UsersList = ({
   useEffect(() => {
     const chatUsersListener = (users, roomName) => {
       // console.log(users);
-      if (roomName === room) setRoomUsers(users.map(({rooms,...user})=>user));
+      if (roomName === room)
+        setRoomUsers(users.map(({ rooms, ...user }) => user));
     };
     const newMessageListener = (message) => {
       // console.log(message);
@@ -43,17 +44,19 @@ const UsersList = ({
         });
       }
     };
-    const disconnectListener = ()=>{
-     setChatUsers(chatUsers.filter(chatUser=>chatUser.id !== socket.id));
+    const disconnectListener = () => {
+      setChatUsers((prevState) =>
+        prevState.filter((chatUser) => chatUser.id !== socket.id)
+      );
     };
     socket.on("chatUsers", chatUsersListener);
     socket.on("newMessage", newMessageListener);
-    socket.on('disconnect',disconnectListener);
+    socket.on("disconnect", disconnectListener);
 
     return () => {
       socket.off("chatUsers", chatUsersListener);
       socket.off("newMessage", newMessageListener);
-      socket.off('disconnect',disconnectListener);
+      socket.off("disconnect", disconnectListener);
     };
   }, []);
 
@@ -112,7 +115,7 @@ const UsersList = ({
                 >
                   <p
                     onClick={() => {
-                      setChatUser((prevState) =>
+                      setChatUsers((prevState) =>
                         prevState.map((chatUser) => ({
                           ...chatUser,
                           isActive: user.id === chatUser.id,

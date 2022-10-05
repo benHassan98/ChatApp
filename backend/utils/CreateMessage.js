@@ -1,7 +1,9 @@
 const Message = require("../models/message");
 const CreateMessage = async ({
   senderId,
+  senderName,
   receiverId,
+  receiverName,
   room,
   isPublic,
   content,
@@ -9,7 +11,9 @@ const CreateMessage = async ({
   try {
     const newMessage = new Message({
       senderId,
+      senderName,
       receiverId,
+      receiverName,
       room,
       isPublic: isPublic ?? true,
       content,

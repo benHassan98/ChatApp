@@ -16,12 +16,14 @@ const ChatPage = ({ socket, userName }) => {
       <UsersList
         socket={socket}
         userName={userName}
+        room={room}
         setRoom={setRoom}
         setIsPublic={setIsPublic}
         setIsJoined={setIsJoined}
       />
       <Board
         socket={socket}
+        userName={userName}
         room={room}
         isPublic={isPublic}
         isJoined={isJoined}

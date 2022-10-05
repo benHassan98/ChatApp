@@ -61,7 +61,7 @@ io.on("connection", (socket) => {
     console.log("getAllUsers", socket.id);
     const allUsersNames = Object.entries(usersInfo).map((user) => user[1]);
 
-    socket.emit("chatUsers", allUsersNames, true);
+    socket.emit("chatUsers", allUsersNames);
     console.log("getAllUsers END", socket.id);
   });
   socket.on("getAllRooms", () => {

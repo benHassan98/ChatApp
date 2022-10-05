@@ -114,6 +114,7 @@ it('should send messages to public rooms',(done)=>{
     // console.log(message);
     expect(message).to.deep.equal({
       senderId: clientSocket.id,
+      senderName:'fake3',
       isPublic:true,
       room: roomName,
       content: "hello world",
@@ -137,6 +138,7 @@ it('should send messages to public rooms',(done)=>{
 
     clientSocket.emit("newMessage", roomName,{
       senderId: clientSocket.id,
+      senderName:'fake3',
       isPublic:true,
       room: roomName,
       content: "hello world",
@@ -161,7 +163,9 @@ it('should send messages to other user in private room',(done)=>{
     // console.log(message);
     expect(message).to.deep.equal({
       senderId: clientSocket.id,
+      senderName:'fake4',
       receiverId:clientSocket2.id,
+      recevierName:'fake44',
       room: clientSocket2.id,
       isPublic:false,
       content: "hello world",
@@ -185,7 +189,9 @@ it('should send messages to other user in private room',(done)=>{
 
     clientSocket.emit("newMessage", clientSocket2.id,{
       senderId: clientSocket.id,
+      senderName:'fake4',
       receiverId:clientSocket2.id,
+      recevierName:'fake44',
       room: clientSocket2.id,
       isPublic:false,
       content: "hello world",
@@ -215,9 +221,11 @@ it('should get messages in a public room',async()=>{
     expect(messages[0]).to.have.deep.property('content','fake5 joined the Room');
     expect(messages[1]).to.have.deep.property('content','this is fake message 1');
     expect(messages[1]).to.have.deep.property('senderId',clientSocket.id);
+    expect(messages[1]).to.have.deep.property('senderName','fake5');
     expect(messages[1]).to.have.deep.property('isPublic',true);
     expect(messages[2]).to.have.deep.property('content','this is fake message 2');
     expect(messages[2]).to.have.deep.property('senderId',clientSocket.id);
+    expect(messages[2]).to.have.deep.property('senderName','fake5');
     expect(messages[2]).to.have.deep.property('isPublic',true);
     clientSocket.disconnect();
   };
@@ -226,12 +234,14 @@ it('should get messages in a public room',async()=>{
   clientSocket.once("newMessage", async () => {
     await CreateMessage({
       senderId:clientSocket.id,
+      senederName:'fake5',
       room:roomName,
       isPublic:true,
       content:'this is fake message 1'
       });
       await CreateMessage({
         senderId:clientSocket.id,
+        senederName:'fake5',
         room:roomName,
         isPublic:true,
         content:'this is fake message 2'
@@ -256,11 +266,15 @@ it('should get messages in a private room',async()=>{
     // console.log(messages);
     expect(messages[0]).to.have.deep.property('content','eh yacta');
     expect(messages[0]).to.have.deep.property('senderId',clientSocket.id);
+    expect(messages[0]).to.have.deep.property('senderName','fake6');
     expect(messages[0]).to.have.deep.property('receiverId','12345');
+    expect(messages[0]).to.have.deep.property('receiverName','fake66');
     expect(messages[0]).to.have.deep.property('isPublic',false);
     expect(messages[1]).to.have.deep.property('content','brdo eh yacta');
     expect(messages[1]).to.have.deep.property('senderId',clientSocket.id);
+    expect(messages[1]).to.have.deep.property('senderName','fake6');
     expect(messages[1]).to.have.deep.property('receiverId','12345');
+    expect(messages[1]).to.have.deep.property('receiverName','fake66');
     expect(messages[1]).to.have.deep.property('isPublic',false);
     clientSocket.disconnect();
   };
@@ -269,14 +283,18 @@ it('should get messages in a private room',async()=>{
   clientSocket.once("newMessage", async () => {
     await CreateMessage({
       senderId:clientSocket.id,
+      senderName:'fake6',
       receiverId:'12345',
+      receiverName:'fake66',
       room:'12345',
       isPublic:false,
       content:'eh yacta'
       });
       await CreateMessage({
         senderId:clientSocket.id,
+        senderName:'fake6',
         receiverId:'12345',
+        receiverName:'fake66',
         room:'12345',
         isPublic:false,
         content:'brdo eh yacta'

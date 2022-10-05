@@ -2,7 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/RoomsList.css";
 const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState([
+    {
+      name: "Public",
+      isActive: true,
+      isJoined: true,
+      messageCnt: 0,
+    },
+  ]);
   const createRoomRef = useRef();
   const createRoominputRef = useRef();
   const createRoomErrorRef = useRef();
@@ -42,18 +49,17 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
     socket.emit("getAllRooms");
     const getAllRoomsListener = (allRooms) => {
       setRooms((prevState) => {
-        const newRooms = allRooms.map((roomName) => {
-          prevState.find((i) => i.name === roomName)
-            ? prevState.find((i) => i.name === roomName)
-            : {
-                name: roomName,
-                isActive: false,
-                isJoined: false,
-                messageCnt: 0,
-              };
-        });
+        const newRooms = allRooms.filter(
+          (roomName) =>
+            !Boolean(prevState.find(({ name }) => roomName === name))
+        ).map(roomName=>({
+          name:roomName,
+          isActive:false,
+          isJoined:false,
+          messageCnt:0,
+        }));
 
-        return newRooms;
+        return [...prevState, ...newRooms];
       });
     };
     const newRoomsListener = (roomName) => {
@@ -69,7 +75,7 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
       ) {
         setRooms((prevState) =>
           prevState.map((room) =>
-            room.name === message.room
+            room.name === message.room && !room.isActive
               ? { ...room, messageCnt: room.messageCnt + 1 }
               : room
           )
@@ -78,12 +84,12 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
     };
     socket.on("getAllRooms", getAllRoomsListener);
     socket.on("newRoom", newRoomsListener);
-    socket.on('newMessage',newMessageListener);
+    socket.on("newMessage", newMessageListener);
 
     return () => {
       socket.off("getAllRooms", getAllRoomsListener);
       socket.off("newRoom", newRoomsListener);
-      socket.off('newMessage',newMessageListener);
+      socket.off("newMessage", newMessageListener);
     };
   }, []);
 
