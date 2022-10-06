@@ -49,15 +49,17 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
     socket.emit("getAllRooms");
     const getAllRoomsListener = (allRooms) => {
       setRooms((prevState) => {
-        const newRooms = allRooms.filter(
-          (roomName) =>
-            !Boolean(prevState.find(({ name }) => roomName === name))
-        ).map(roomName=>({
-          name:roomName,
-          isActive:false,
-          isJoined:false,
-          messageCnt:0,
-        }));
+        const newRooms = allRooms
+          .filter(
+            (roomName) =>
+              !Boolean(prevState.find(({ name }) => roomName === name))
+          )
+          .map((roomName) => ({
+            name: roomName,
+            isActive: false,
+            isJoined: false,
+            messageCnt: 0,
+          }));
 
         return [...prevState, ...newRooms];
       });
@@ -167,10 +169,13 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
                         setRooms((prevState) =>
                           prevState.map((room) =>
                             room.name === name
-                              ? { ...room, isJoined: true }
-                              : room
+                              ? { ...room, isJoined: true, isActive: true }
+                              : { ...room, isActive: false }
                           )
                         );
+                        setRoom(name);
+                        setIsPublic(true);
+                        setIsJoined(true);
                       }}
                     >
                       Join Room
@@ -194,6 +199,8 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
                               : room
                           )
                         );
+
+                        if (isActive) setIsJoined(false);
                       }}
                     >
                       Leave Room

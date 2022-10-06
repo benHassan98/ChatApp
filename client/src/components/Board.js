@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/Board.css";
-const Board = ({ socket,userName, room, isPublic, isJoined }) => {
+const Board = ({ socket, userName, room, isPublic, isJoined }) => {
   const [messages, setMessages] = useState([]);
   const textAreaRef = useRef();
   const bottomRef = useRef();
@@ -13,9 +13,12 @@ const Board = ({ socket,userName, room, isPublic, isJoined }) => {
       setMessages(receivedMessages);
     };
     const newMessageListener = (message) => {
-      // console.log("Board", messages, message);
-      if (room === message.room)
-        setMessages((prevState) => [...prevState, message]);
+      
+      
+        setMessages((prevState) => {
+          console.log("Board", message,room);
+          return ((room === message.room)?[...prevState, message]:prevState);
+        });
     };
     socket.on("getMessages", getMessageListener);
     socket.on("newMessage", newMessageListener);
@@ -44,7 +47,11 @@ const Board = ({ socket,userName, room, isPublic, isJoined }) => {
               }
               key={id}
             >
-              <p>{(message.senderId!=='ChatBot'?message.senderName+':':'')+message.content}</p>
+              <p>
+                {(message.senderId !== "ChatBot"
+                  ? message.senderName + ":"
+                  : "") + message.content}
+              </p>
             </div>
           );
         })}
@@ -66,7 +73,7 @@ const Board = ({ socket,userName, room, isPublic, isJoined }) => {
             if (textAreaRef.current.value !== "") {
               const message = {
                 senderId: socket.id,
-                senderName:userName,
+                senderName: userName,
                 room,
                 isPublic,
                 content: textAreaRef.current.value,
@@ -74,6 +81,7 @@ const Board = ({ socket,userName, room, isPublic, isJoined }) => {
               if (!isPublic) message.receiverId = room;
               setMessages((prevState) => [...prevState, message]);
               socket.emit("newMessage", room, message);
+              textAreaRef.current.value = "";
             }
           }}
         >
