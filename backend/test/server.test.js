@@ -2,24 +2,23 @@ const io = require("../app");
 const initializeMongoServer = require("../mongoConfigTesting");
 const Client = require("socket.io-client");
 const { expect } = require("chai");
-const CreateMessage = require('../utils/CreateMessage');
+const CreateMessage = require("../utils/CreateMessage");
 
 describe("User", () => {
   let options = {
     transports: ["websocket"],
-    forceNew:true,
+    forceNew: true,
     reconnection: false,
   };
 
-  
   before(async () => {
     io.listen(5000);
     await initializeMongoServer();
   });
 
   it("should join rooms", (done) => {
-   let clientSocket = new Client("http://localhost:5000", options);
-   const roomName = 'room at '+new Date().valueOf();
+    let clientSocket = new Client("http://localhost:5000", options);
+    const roomName = "room at " + new Date().valueOf();
     clientSocket.emit("newUser", "fake1", roomName);
     let chatUsersTest = (roomUsers) => {
       // console.log(roomUsers);
@@ -31,11 +30,11 @@ describe("User", () => {
         },
       ]);
     };
-   let newMessageTest = (message) => {
+    let newMessageTest = (message) => {
       // console.log(message);
       expect(message).to.deep.equal({
         senderId: "ChatBot",
-        isPublic:true,
+        isPublic: true,
         room: "fakeRoom",
         content: "fake1 joined the Room",
       });
@@ -45,271 +44,241 @@ describe("User", () => {
     console.log(clientSocket.listeners("newMessage"));
     clientSocket.once("chatUsers", () => {});
     clientSocket.once("newMessage", () => {
-
       clientSocket.once("chatUsers", chatUsersTest);
       clientSocket.once("newMessage", newMessageTest);
 
       clientSocket.emit("joinRoom", "fakeRoom");
-      
     });
-    
+
     done();
   });
 
-it('should leave rooms',(done)=>{
-  let clientSocket = new Client("http://localhost:5000", options);
-  let clientSocket2 = new Client('http://localhost:5000',options);
-  const roomName = 'room at '+new Date().valueOf();
-  clientSocket.emit("newUser", "fake2", roomName);
-  
-  let chatUsersTest = (roomUsers) => {
-    // console.log(roomUsers);
-    expect(roomUsers).to.deep.equal([
-      {
-        id: clientSocket2.id,
-        userName: "fake22",
-        rooms: [roomName],
-      },
-    ]);
-  };
-  let newMessageTest = (message) => {
-    // console.log(message);
-    expect(message).to.deep.equal({
-      senderId: "ChatBot",
-      room: roomName,
-      isPublic:true,
-      content: "fake2 left the Room",
+  it("should leave rooms", (done) => {
+    let clientSocket = new Client("http://localhost:5000", options);
+    let clientSocket2 = new Client("http://localhost:5000", options);
+    const roomName = "room at " + new Date().valueOf();
+    clientSocket.emit("newUser", "fake2", roomName);
+
+    let chatUsersTest = (roomUsers) => {
+      // console.log(roomUsers);
+      expect(roomUsers).to.deep.equal([
+        {
+          id: clientSocket2.id,
+          userName: "fake22",
+          rooms: [roomName],
+        },
+      ]);
+    };
+    let newMessageTest = (message) => {
+      // console.log(message);
+      expect(message).to.deep.equal({
+        senderId: "ChatBot",
+        room: roomName,
+        isPublic: true,
+        content: "fake2 left the Room",
+      });
+      clientSocket.disconnect();
+      clientSocket2.disconnect();
+    };
+    clientSocket.once("chatUsers", () => {});
+    clientSocket.once("newMessage", () => {
+      clientSocket2.emit("newUser", "fake22", roomName);
+
+      clientSocket2.once("chatUsers", () => {});
+      clientSocket2.once("newMessage", () => {
+        clientSocket2.once("chatUsers", chatUsersTest);
+        clientSocket2.once("newMessage", newMessageTest);
+      });
+
+      clientSocket.emit("leaveRoom", roomName);
     });
-    clientSocket.disconnect();
-    clientSocket2.disconnect();
-  };
-  clientSocket.once("chatUsers", () => {});
-  clientSocket.once("newMessage", () => {
-    clientSocket2.emit('newUser','fake22',roomName); 
-    
 
-    clientSocket2.once("chatUsers", ()=>{});
-    clientSocket2.once("newMessage", ()=>{
-    
-    
-      clientSocket2.once('chatUsers',chatUsersTest);
-      clientSocket2.once('newMessage',newMessageTest);
-
-    });
-
-    clientSocket.emit("leaveRoom", roomName);
+    done();
   });
 
+  it("should send messages to public rooms", (done) => {
+    let clientSocket = new Client("http://localhost:5000", options);
+    let clientSocket2 = new Client("http://localhost:5000", options);
+    const roomName = "room at " + new Date().valueOf();
+    clientSocket.emit("newUser", "fake3", roomName);
 
-done();
-});
+    let newMessageTest = (message) => {
+      // console.log(message);
+      expect(message).to.deep.equal({
+        senderId: clientSocket.id,
+        senderName: "fake3",
+        isPublic: true,
+        room: roomName,
+        content: "hello world",
+      });
+      clientSocket.disconnect();
+      clientSocket2.disconnect();
+    };
 
-it('should send messages to public rooms',(done)=>{
-  let clientSocket = new Client("http://localhost:5000", options);
-  let clientSocket2 = new Client("http://localhost:5000", options);
-  const roomName = 'room at '+new Date().valueOf();
-  clientSocket.emit("newUser", "fake3", roomName);
-  
-  let newMessageTest = (message) => {
-    // console.log(message);
-    expect(message).to.deep.equal({
-      senderId: clientSocket.id,
-      senderName:'fake3',
-      isPublic:true,
-      room: roomName,
-      content: "hello world",
-    });
-    clientSocket.disconnect();
-    clientSocket2.disconnect();
-  };
+    clientSocket.once("chatUsers", () => {});
+    clientSocket.once("newMessage", () => {
+      clientSocket2.emit("newUser", "fake33", roomName);
 
-  clientSocket.once("chatUsers", () => {});
-  clientSocket.once("newMessage", () => {
+      clientSocket2.once("chatUsers", () => {});
+      clientSocket2.once("newMessage", () => {
+        clientSocket2.once("newMessage", newMessageTest);
+      });
 
-    clientSocket2.emit('newUser','fake33',roomName); 
-    
-
-    clientSocket2.once("chatUsers", ()=>{});
-    clientSocket2.once("newMessage", ()=>{
-    
-      clientSocket2.once('newMessage',newMessageTest);
-
-    });
-
-    clientSocket.emit("newMessage", roomName,{
-      senderId: clientSocket.id,
-      senderName:'fake3',
-      isPublic:true,
-      room: roomName,
-      content: "hello world",
+      clientSocket.emit("newMessage", roomName, {
+        senderId: clientSocket.id,
+        senderName: "fake3",
+        isPublic: true,
+        room: roomName,
+        content: "hello world",
+      });
     });
 
+    done();
   });
 
+  it("should send messages to other user in private room", (done) => {
+    let clientSocket = new Client("http://localhost:5000", options);
+    let clientSocket2 = new Client("http://localhost:5000", options);
+    const roomName = "user " + new Date().valueOf() + "'s room";
+    clientSocket.emit("newUser", "fake4", roomName);
 
+    let newMessageTest = (message) => {
+      // console.log(message);
+      expect(message).to.deep.equal({
+        senderId: clientSocket.id,
+        senderName: "fake4",
+        receiverId: clientSocket2.id,
+        room: clientSocket2.id,
+        isPublic: false,
+        content: "hello world",
+      });
+      clientSocket.disconnect();
+      clientSocket2.disconnect();
+    };
 
-done();
+    clientSocket.once("chatUsers", () => {});
+    clientSocket.once("newMessage", () => {
+      clientSocket2.emit("newUser", "fake44", roomName);
 
-});
+      clientSocket2.once("chatUsers", () => {});
+      clientSocket2.once("newMessage", () => {
+        clientSocket2.once("newMessage", newMessageTest);
+      });
 
-
-it('should send messages to other user in private room',(done)=>{
-  let clientSocket = new Client("http://localhost:5000", options);
-  let clientSocket2 = new Client("http://localhost:5000", options);
-  const roomName = 'user '+new Date().valueOf() +"'s room";
-  clientSocket.emit("newUser", "fake4", roomName);
-  
-  let newMessageTest = (message) => {
-    // console.log(message);
-    expect(message).to.deep.equal({
-      senderId: clientSocket.id,
-      senderName:'fake4',
-      receiverId:clientSocket2.id,
-      room: clientSocket2.id,
-      isPublic:false,
-      content: "hello world",
-    });
-    clientSocket.disconnect();
-    clientSocket2.disconnect();
-  };
-
-  clientSocket.once("chatUsers", () => {});
-  clientSocket.once("newMessage", () => {
-
-    clientSocket2.emit('newUser','fake44',roomName); 
-    
-
-    clientSocket2.once("chatUsers", ()=>{});
-    clientSocket2.once("newMessage", ()=>{
-    
-      clientSocket2.once('newMessage',newMessageTest);
-
-    });
-
-    clientSocket.emit("newMessage", clientSocket2.id,{
-      senderId: clientSocket.id,
-      senderName:'fake4',
-      receiverId:clientSocket2.id,
-      room: clientSocket2.id,
-      isPublic:false,
-      content: "hello world",
+      clientSocket.emit("newMessage", clientSocket2.id, {
+        senderId: clientSocket.id,
+        senderName: "fake4",
+        receiverId: clientSocket2.id,
+        room: clientSocket2.id,
+        isPublic: false,
+        content: "hello world",
+      });
     });
 
+    done();
   });
 
+  it("should get messages in a public room", async () => {
+    let clientSocket = new Client("http://localhost:5000", options);
+    const roomName = "room at " + new Date().valueOf();
 
+    clientSocket.emit("newUser", "fake5", roomName);
+    let getMessagesTest = (messages) => {
+      console.log(messages);
+      expect(messages[0]).to.have.deep.property(
+        "content",
+        "fake5 joined the Room"
+      );
+      expect(messages[1]).to.have.deep.property(
+        "content",
+        "this is fake message 1"
+      );
+      expect(messages[1]).to.have.deep.property("senderId", clientSocket.id);
+      expect(messages[1]).to.have.deep.property("senderName", "fake5");
+      expect(messages[1]).to.have.deep.property("isPublic", true);
+      expect(messages[2]).to.have.deep.property(
+        "content",
+        "this is fake message 2"
+      );
+      expect(messages[2]).to.have.deep.property("senderId", clientSocket.id);
+      expect(messages[2]).to.have.deep.property("senderName", "fake5");
+      expect(messages[2]).to.have.deep.property("isPublic", true);
+      clientSocket.disconnect();
+    };
 
-done();
-
-});
-
-
-
-
-
-
-
-it('should get messages in a public room',async()=>{
-  let clientSocket = new Client("http://localhost:5000", options);
-  const roomName = 'room at '+new Date().valueOf();
-  
-  clientSocket.emit("newUser", "fake5", roomName);
-  let getMessagesTest = (messages) => {
-    // console.log(messages);
-    expect(messages[0]).to.have.deep.property('content','fake5 joined the Room');
-    expect(messages[1]).to.have.deep.property('content','this is fake message 1');
-    expect(messages[1]).to.have.deep.property('senderId',clientSocket.id);
-    expect(messages[1]).to.have.deep.property('senderName','fake5');
-    expect(messages[1]).to.have.deep.property('isPublic',true);
-    expect(messages[2]).to.have.deep.property('content','this is fake message 2');
-    expect(messages[2]).to.have.deep.property('senderId',clientSocket.id);
-    expect(messages[2]).to.have.deep.property('senderName','fake5');
-    expect(messages[2]).to.have.deep.property('isPublic',true);
-    clientSocket.disconnect();
-  };
-
-  clientSocket.once("chatUsers", () => {});
-  clientSocket.once("newMessage", async () => {
-    await CreateMessage({
-      senderId:clientSocket.id,
-      senederName:'fake5',
-      room:roomName,
-      isPublic:true,
-      content:'this is fake message 1'
+    clientSocket.once("chatUsers", () => {});
+    clientSocket.once("newMessage", async () => {
+      await CreateMessage({
+        senderId: clientSocket.id,
+        senderName: "fake5",
+        room: roomName,
+        isPublic: true,
+        content: "this is fake message 1",
       });
       await CreateMessage({
-        senderId:clientSocket.id,
-        senederName:'fake5',
-        room:roomName,
-        isPublic:true,
-        content:'this is fake message 2'
-        });
+        senderId: clientSocket.id,
+        senderName: "fake5",
+        room: roomName,
+        isPublic: true,
+        content: "this is fake message 2",
+      });
 
-  clientSocket.once('getMessages',getMessagesTest);
+      clientSocket.once("getMessages", getMessagesTest);
 
-  clientSocket.emit('getMessages',roomName,true);  
-});
+      clientSocket.emit("getMessages", roomName, true);
+    });
+  });
 
+  it("should get messages in a private room", async () => {
+    let clientSocket = new Client("http://localhost:5000", options);
+    const roomName = "room at " + new Date().valueOf();
+    clientSocket.emit("newUser", "fake6", roomName);
+    let getMessagesTest = (messages) => {
+      // console.log(messages);
+      expect(messages[0]).to.have.deep.property("content", "eh yacta");
+      expect(messages[0]).to.have.deep.property("senderId", clientSocket.id);
+      expect(messages[0]).to.have.deep.property("senderName", "fake6");
+      expect(messages[0]).to.have.deep.property("receiverId", "12345");
+      expect(messages[0]).to.have.deep.property("isPublic", false);
+      expect(messages[1]).to.have.deep.property("content", "brdo eh yacta");
+      expect(messages[1]).to.have.deep.property("senderId", clientSocket.id);
+      expect(messages[1]).to.have.deep.property("senderName", "fake6");
+      expect(messages[1]).to.have.deep.property("receiverId", "12345");
+      expect(messages[1]).to.have.deep.property("isPublic", false);
+      clientSocket.disconnect();
+    };
 
-  
-
-  
-});
-
-it('should get messages in a private room',async()=>{
-  let clientSocket = new Client("http://localhost:5000", options);
-  const roomName = 'room at '+new Date().valueOf();
-  clientSocket.emit("newUser", "fake6", roomName);
-  let getMessagesTest = (messages) => {
-    // console.log(messages);
-    expect(messages[0]).to.have.deep.property('content','eh yacta');
-    expect(messages[0]).to.have.deep.property('senderId',clientSocket.id);
-    expect(messages[0]).to.have.deep.property('senderName','fake6');
-    expect(messages[0]).to.have.deep.property('receiverId','12345');
-    expect(messages[0]).to.have.deep.property('isPublic',false);
-    expect(messages[1]).to.have.deep.property('content','brdo eh yacta');
-    expect(messages[1]).to.have.deep.property('senderId',clientSocket.id);
-    expect(messages[1]).to.have.deep.property('senderName','fake6');
-    expect(messages[1]).to.have.deep.property('receiverId','12345');
-    expect(messages[1]).to.have.deep.property('isPublic',false);
-    clientSocket.disconnect();
-  };
-
-  clientSocket.once("chatUsers", () => {});
-  clientSocket.once("newMessage", async () => {
-    await CreateMessage({
-      senderId:clientSocket.id,
-      senderName:'fake6',
-      receiverId:'12345',
-      room:'12345',
-      isPublic:false,
-      content:'eh yacta'
+    clientSocket.once("chatUsers", () => {});
+    clientSocket.once("newMessage", async () => {
+      await CreateMessage({
+        senderId: clientSocket.id,
+        senderName: "fake6",
+        receiverId: "12345",
+        room: "12345",
+        isPublic: false,
+        content: "eh yacta",
       });
       await CreateMessage({
-        senderId:clientSocket.id,
-        senderName:'fake6',
-        receiverId:'12345',
-        room:'12345',
-        isPublic:false,
-        content:'brdo eh yacta'
-        });
+        senderId: clientSocket.id,
+        senderName: "fake6",
+        receiverId: "12345",
+        room: "12345",
+        isPublic: false,
+        content: "brdo eh yacta",
+      });
 
-  clientSocket.once('getMessages',getMessagesTest);
+      await CreateMessage({
+        senderId: '12345',
+        senderName: "fake66",
+        receiverId: clientSocket.id,
+        room: "12345",
+        isPublic: false,
+        content: "tmam yacta",
+      });
 
-  clientSocket.emit('getMessages','12345',false);  
+      clientSocket.once("getMessages", getMessagesTest);
+
+      clientSocket.emit("getMessages", "12345", false, "12345");
+    });
+  });
 });
-
-
-  
-
-  
-});
-
-
-
-
-
-});
-
-
-

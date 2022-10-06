@@ -33,21 +33,22 @@ const UsersList = ({
                 : chatUser
             );
           } else {
-            const senderSerialized = JSON.stringify(
-              roomUsers.find((user) => user.id === message.senderId)
-            );
-            const newSender = JSON.parse(senderSerialized);
-
-            newSender.messageCnt = 1;
+            const newSender = {
+              id: message.senderId,
+              userName: message.senderName,
+              isActive: false,
+              messageCnt: 1,
+            };
             return [...prevState, newSender];
           }
         });
       }
     };
     const disconnectListener = () => {
-      setChatUsers((prevState) =>
-        prevState.filter((chatUser) => chatUser.id !== socket.id)
-      );
+      console.log('dis');
+      setChatUsers((prevState) => [
+        ...prevState.filter((chatUser) => chatUser.id !== socket.id),
+      ]);
     };
     socket.on("chatUsers", chatUsersListener);
     socket.on("newMessage", newMessageListener);
@@ -73,15 +74,15 @@ const UsersList = ({
                 }
                 key={id}
                 onClick={() => {
+                  if (user.userName === userName) return;
                   if (
-                    user.userName !== userName &&
                     !chatUsers.find(
                       ({ userName }) => userName === user.userName
                     )
                   ) {
                     setChatUsers((prevState) => [
                       ...prevState,
-                      { ...user, messageCnt: 0, isActive: false },
+                      { ...user, messageCnt: 0, isActive: true },
                     ]);
                   } else {
                     setChatUsers((prevState) =>
@@ -92,6 +93,9 @@ const UsersList = ({
                       )
                     );
                   }
+                    setRoom(user.id);
+                    setIsPublic(false);
+                    setIsJoined(true);
                 }}
               >
                 <p>{user.userName}</p>

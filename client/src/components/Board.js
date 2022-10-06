@@ -13,12 +13,9 @@ const Board = ({ socket, userName, room, isPublic, isJoined }) => {
       setMessages(receivedMessages);
     };
     const newMessageListener = (message) => {
-      
-      
-        setMessages((prevState) => {
-          console.log("Board", message,room);
-          return ((room === message.room)?[...prevState, message]:prevState);
-        });
+      console.log("Board", message, room);
+      if (room === message.room)
+        setMessages((prevState) => [...prevState, message]);
     };
     socket.on("getMessages", getMessageListener);
     socket.on("newMessage", newMessageListener);
@@ -48,7 +45,9 @@ const Board = ({ socket, userName, room, isPublic, isJoined }) => {
               key={id}
             >
               <p>
-                {(message.senderId !== "ChatBot"
+                {(message.senderId !== "ChatBot" &&
+                message.senderName !== userName &&
+                !message.isPublic
                   ? message.senderName + ":"
                   : "") + message.content}
               </p>

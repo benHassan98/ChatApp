@@ -116,9 +116,9 @@ io.on("connection", (socket) => {
     console.log("newMessage END", socket.id);
   });
 
-  socket.on("getMessages", async (room, isPublic) => {
+  socket.on("getMessages", async (room, isPublic, userId) => {
     console.log("getMessages", room, isPublic, socket.id);
-    const messages = await GetMessages(room, isPublic, socket.id);
+    const messages = await GetMessages(room, isPublic, socket.id, userId);
 
     socket.emit("getMessages", messages);
     console.log("getMessages END", socket.id);
