@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/RoomsList.css";
-const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
+const RoomsList = ({ socket, room, setRoom, setIsJoined, setIsPublic }) => {
   const [rooms, setRooms] = useState([
     {
       name: "Public",
@@ -151,6 +151,7 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
                       setRoom(name);
                       setIsPublic(true);
                       setIsJoined(isJoined);
+                      socket.emit("getMessages", room, isPublic);
                     }}
                   >
                     {name}

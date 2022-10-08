@@ -9,6 +9,7 @@ const UsersList = ({
   setRoom,
   setIsPublic,
   setIsJoined,
+  setReceiverId,
 }) => {
   const [roomUsers, setRoomUsers] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
@@ -23,15 +24,21 @@ const UsersList = ({
     };
     const newMessageListener = (message) => {
       // console.log(message);
-      if (!message.isPublic) {
+      if (message.isDisconnected) {
+        setChatUsers((prevState) => [
+          ...prevState.filter((chatUser) => chatUser.id !== message.userId),
+        ]);
+      } else if (!message.isPublic) {
         setChatUsers((prevState) => {
           const sender = prevState.find((user) => user.id === message.senderId);
           if (sender) {
-            return prevState.map((chatUser) =>
-              chatUser.id === sender.id
-                ? { ...chatUser, messageCnt: chatUser.messageCnt + 1 }
-                : chatUser
-            );
+            return [
+              ...prevState.map((chatUser) =>
+                chatUser.id === sender.id
+                  ? { ...chatUser, messageCnt: chatUser.messageCnt + 1 }
+                  : chatUser
+              ),
+            ];
           } else {
             const newSender = {
               id: message.senderId,
@@ -44,20 +51,13 @@ const UsersList = ({
         });
       }
     };
-    const disconnectListener = () => {
-      console.log('dis');
-      setChatUsers((prevState) => [
-        ...prevState.filter((chatUser) => chatUser.id !== socket.id),
-      ]);
-    };
+
     socket.on("chatUsers", chatUsersListener);
     socket.on("newMessage", newMessageListener);
-    socket.on("disconnect", disconnectListener);
 
     return () => {
       socket.off("chatUsers", chatUsersListener);
       socket.off("newMessage", newMessageListener);
-      socket.off("disconnect", disconnectListener);
     };
   }, []);
 
@@ -93,9 +93,11 @@ const UsersList = ({
                       )
                     );
                   }
-                    setRoom(user.id);
-                    setIsPublic(false);
-                    setIsJoined(true);
+                  setRoom(user.id);
+                  setIsPublic(false);
+                  setIsJoined(true);
+                  setReceiverId(user.id);
+                  socket.emit("getMessages", user.id, false, user.id);
                 }}
               >
                 <p>{user.userName}</p>
@@ -125,9 +127,11 @@ const UsersList = ({
                           isActive: user.id === chatUser.id,
                         }))
                       );
-                      setRoom(user.id);
+                      setRoom(socket.id);
                       setIsPublic(false);
                       setIsJoined(true);
+                      setReceiverId(user.id);
+                      socket.emit("getMessages", socket.id, false, user.id);
                     }}
                   >
                     {user.userName}

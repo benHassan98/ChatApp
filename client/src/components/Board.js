@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/Board.css";
-const Board = ({ socket, userName, room, isPublic, isJoined }) => {
+const Board = ({ socket, userName, room, isPublic, isJoined, receiverId }) => {
   const [messages, setMessages] = useState([]);
   const textAreaRef = useRef();
   const bottomRef = useRef();
-  useEffect(() => {
-    socket.emit("getMessages", room, isPublic);
-  }, [room]);
+
   useEffect(() => {
     const getMessageListener = (receivedMessages) => {
       setMessages(receivedMessages);
@@ -47,7 +45,7 @@ const Board = ({ socket, userName, room, isPublic, isJoined }) => {
               <p>
                 {(message.senderId !== "ChatBot" &&
                 message.senderName !== userName &&
-                !message.isPublic
+                message.isPublic
                   ? message.senderName + ":"
                   : "") + message.content}
               </p>
@@ -77,7 +75,7 @@ const Board = ({ socket, userName, room, isPublic, isJoined }) => {
                 isPublic,
                 content: textAreaRef.current.value,
               };
-              if (!isPublic) message.receiverId = room;
+              if (!isPublic) message.receiverId = receiverId;
               setMessages((prevState) => [...prevState, message]);
               socket.emit("newMessage", room, message);
               textAreaRef.current.value = "";

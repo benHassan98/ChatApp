@@ -112,12 +112,18 @@ io.on("connection", (socket) => {
   socket.on("newMessage", async (room, message) => {
     console.log("newMessage", room, message, socket.id);
     await CreateMessage(message);
-    socket.to(room).emit("newMessage", message);
+    if(!message.isPublic){
+      socket.to(receiverId).emit("newMessage", message);
+    }
+    else{
+      socket.to(room).emit("newMessage", message);
+    }
+    
     console.log("newMessage END", socket.id);
   });
 
   socket.on("getMessages", async (room, isPublic, userId) => {
-    console.log("getMessages", room, isPublic, socket.id);
+    console.log("getMessages", room, isPublic, socket.id,userId);
     const messages = await GetMessages(room, isPublic, socket.id, userId);
 
     socket.emit("getMessages", messages);
@@ -132,6 +138,11 @@ io.on("connection", (socket) => {
       );
       socket.leave(room);
       socket.to(room).emit("chatUsers", roomsLists[room], room);
+      socket.to(room).emit("newMessage", {
+        userId: socket.id,
+        userName: usersInfo[socket.id].userName,
+        isDisconnected: 1,
+      });
     });
 
     delete usersInfo[socket.id];
