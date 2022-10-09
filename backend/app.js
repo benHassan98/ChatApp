@@ -113,7 +113,7 @@ io.on("connection", (socket) => {
     console.log("newMessage", room, message, socket.id);
     await CreateMessage(message);
     if(!message.isPublic){
-      socket.to(receiverId).emit("newMessage", message);
+      socket.to(message.receiverId).emit("newMessage", message);
     }
     else{
       socket.to(room).emit("newMessage", message);

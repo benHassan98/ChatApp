@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-// import socket from "../services/socket";
 import "../styles/Board.css";
 const Board = ({ socket, userName, room, isPublic, isJoined, receiverId }) => {
   const [messages, setMessages] = useState([]);
@@ -7,13 +6,14 @@ const Board = ({ socket, userName, room, isPublic, isJoined, receiverId }) => {
   const bottomRef = useRef();
 
   useEffect(() => {
+    console.log("change", room); 
+  socket.emit("getMessages", room, isPublic, receiverId);
     const getMessageListener = (receivedMessages) => {
       setMessages(receivedMessages);
     };
     const newMessageListener = (message) => {
-      console.log("Board", message, room);
-      if (room === message.room)
-        setMessages((prevState) => [...prevState, message]);
+      if(room === message.room)  
+      setMessages((prevState) =>[...prevState, message]);
     };
     socket.on("getMessages", getMessageListener);
     socket.on("newMessage", newMessageListener);
@@ -22,7 +22,7 @@ const Board = ({ socket, userName, room, isPublic, isJoined, receiverId }) => {
       socket.off("getMessages", getMessageListener);
       socket.off("newMessage", newMessageListener);
     };
-  }, []);
+  }, [room]);
   useEffect(() => {
     bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);

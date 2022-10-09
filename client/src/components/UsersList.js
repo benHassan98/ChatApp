@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import socket from "../services/socket";
 import "../styles/UsersList.css";
 const UsersList = ({
   socket,
@@ -13,17 +12,16 @@ const UsersList = ({
 }) => {
   const [roomUsers, setRoomUsers] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
+  
   useEffect(() => {
     if (isPublic) socket.emit("getAllUsers");
-  }, [room]);
-  useEffect(() => {
     const chatUsersListener = (users, roomName) => {
       // console.log(users);
       if (roomName === room)
-        setRoomUsers(users.map(({ rooms, ...user }) => user));
+        setRoomUsers(() => users.map(({ rooms, ...user }) => user));
     };
     const newMessageListener = (message) => {
-      // console.log(message);
+      console.log("UsersList", message);
       if (message.isDisconnected) {
         setChatUsers((prevState) => [
           ...prevState.filter((chatUser) => chatUser.id !== message.userId),
@@ -35,7 +33,12 @@ const UsersList = ({
             return [
               ...prevState.map((chatUser) =>
                 chatUser.id === sender.id
-                  ? { ...chatUser, messageCnt: chatUser.messageCnt + 1 }
+                  ? {
+                      ...chatUser,
+                      messageCnt: chatUser.isActive
+                        ? 0
+                        : chatUser.messageCnt + 1,
+                    }
                   : chatUser
               ),
             ];
@@ -59,7 +62,7 @@ const UsersList = ({
       socket.off("chatUsers", chatUsersListener);
       socket.off("newMessage", newMessageListener);
     };
-  }, []);
+  }, [room]);
 
   return (
     <div className="users-list">
@@ -67,6 +70,7 @@ const UsersList = ({
         <div className="text-center">Active Users</div>
         <div className="list-group">
           {roomUsers.map((user, id) => {
+            const newChatRoom = [socket.id, user.id].sort().join("");
             return (
               <div
                 className={
@@ -93,11 +97,10 @@ const UsersList = ({
                       )
                     );
                   }
-                  setRoom(user.id);
+                  setRoom(newChatRoom);
                   setIsPublic(false);
                   setIsJoined(true);
                   setReceiverId(user.id);
-                  socket.emit("getMessages", user.id, false, user.id);
                 }}
               >
                 <p>{user.userName}</p>
@@ -111,6 +114,7 @@ const UsersList = ({
           <div className="text-center">On Going Chats</div>
           <div className="list-group">
             {chatUsers.map((user, id) => {
+              const newChatRoom = [socket.id, user.id].sort().join("");
               return (
                 <div
                   key={id}
@@ -125,13 +129,14 @@ const UsersList = ({
                         prevState.map((chatUser) => ({
                           ...chatUser,
                           isActive: user.id === chatUser.id,
+                          messageCnt:
+                            user.id === chatUser.id ? 0 : chatUser.messageCnt,
                         }))
                       );
-                      setRoom(socket.id);
+                      setRoom(newChatRoom);
                       setIsPublic(false);
                       setIsJoined(true);
                       setReceiverId(user.id);
-                      socket.emit("getMessages", socket.id, false, user.id);
                     }}
                   >
                     {user.userName}

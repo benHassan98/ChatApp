@@ -8,9 +8,9 @@ const ChatPage = ({ socket, userName }) => {
   const [isPublic, setIsPublic] = useState(true);
   const [isJoined, setIsJoined] = useState(true);
   const [receiverId,setReceiverId] = useState(null);
-
+console.log('chatPage',room);
   useEffect(()=>{
-    socket.emit("newUser", userName, 'Public');
+    socket.emit("newUser", userName, room);
     socket.emit("getMessages", room, isPublic);
   },[]);
   return (
@@ -34,7 +34,6 @@ const ChatPage = ({ socket, userName }) => {
       />
       <RoomsList
         socket={socket}
-        room={room}
         setIsJoined={setIsJoined}
         setRoom={setRoom}
         setIsPublic={setIsPublic}
