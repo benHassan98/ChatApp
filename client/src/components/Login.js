@@ -33,13 +33,14 @@ const Login = ({socket, setUserName}) => {
 
   // return ()=>socket.off('chatUsers',listener);
   // },[]);
+  
   useEffect(() => {
-    socket.emit("getAllUsers");
-    const listener = (users,x) => {
-      console.log('login',users,x);
+    const listener = (users) => {
       setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
     };
   socket.on("chatUsers", listener);
+    socket.emit("getAllUsers");
+  
 
   return ()=>socket.off('chatUsers',listener);
     
@@ -59,8 +60,9 @@ const Login = ({socket, setUserName}) => {
           className="form-control"
           id="userName"
           ref={userNameRef}
+          data-testid='userName'
         />
-        <div className="invalid-feedback" ref={userNameErrorRef}></div>
+        <div className="invalid-feedback" ref={userNameErrorRef} data-testid='userNameError'></div>
       </div>
 
       <button
