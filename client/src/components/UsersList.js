@@ -3,10 +3,8 @@ import "../styles/UsersList.css";
 const UsersList = ({
   socket,
   userName,
-  room,
-  isPublic,
-  setRoom,
-  setIsPublic,
+  publicRoom,
+  setPrivateRoom,
   setIsJoined,
   setReceiverId,
 }) => {
@@ -18,7 +16,7 @@ const UsersList = ({
       // console.log(users);
       setRoomUsers(
         users
-          .filter(({ rooms }) => rooms.includes(room))
+          .filter(({ rooms }) => rooms.includes(publicRoom))
           .map(({ rooms, ...user }) => user)
       );
     };
@@ -59,13 +57,13 @@ const UsersList = ({
 
     socket.on("chatUsers", chatUsersListener);
     socket.on("newMessage", newMessageListener);
-    if (isPublic) socket.emit("getAllUsers");
+    socket.emit("getAllUsers");
 
     return () => {
       socket.off("chatUsers", chatUsersListener);
       socket.off("newMessage", newMessageListener);
     };
-  }, [room]);
+  }, [publicRoom]);
 
   return (
     <div className="users-list">
@@ -100,8 +98,7 @@ const UsersList = ({
                       )
                     );
                   }
-                  setRoom(newChatRoom);
-                  setIsPublic(false);
+                  setPrivateRoom(newChatRoom);
                   setIsJoined(true);
                   setReceiverId(user.id);
                 }}
@@ -125,6 +122,7 @@ const UsersList = ({
                     "list-group-item d-flex justify-content-between align-items-center" +
                     (user.isActive ? " active" : "")
                   }
+                  style={{'gap':'2px'}}
                 >
                   <p
                     onClick={() => {
@@ -136,8 +134,7 @@ const UsersList = ({
                             user.id === chatUser.id ? 0 : chatUser.messageCnt,
                         }))
                       );
-                      setRoom(newChatRoom);
-                      setIsPublic(false);
+                      setPrivateRoom(newChatRoom);
                       setIsJoined(true);
                       setReceiverId(user.id);
                     }}
@@ -153,11 +150,16 @@ const UsersList = ({
                       "--bs-btn-padding-x": ".5rem",
                       "--bs-btn-font-size": ".75rem",
                     }}
-                    onClick={() =>
+                    onClick={() =>{
                       setChatUsers((prevState) =>
-                        prevState.filter(({ id }) => id !== user.id)
-                      )
+                      prevState.filter(({ id }) => id !== user.id)
+                    );
+                    if(user.isActive){
+                      setPrivateRoom(null);
+                      setReceiverId(null);
                     }
+                      
+                    }}
                   >
                     Close Chat
                   </button>

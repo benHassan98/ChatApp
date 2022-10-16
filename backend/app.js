@@ -109,21 +109,20 @@ io.on("connection", (socket) => {
     console.log("leaveRoom END", socket.id);
   });
 
-  socket.on("newMessage", async (room, message) => {
-    console.log("newMessage", room, message, socket.id);
+  socket.on("newMessage", async (message) => {
+    console.log("newMessage", message, socket.id);
     await CreateMessage(message);
-    if(!message.isPublic){
+    if (!message.isPublic) {
       socket.to(message.receiverId).emit("newMessage", message);
+    } else {
+      socket.to(message.room).emit("newMessage", message);
     }
-    else{
-      socket.to(room).emit("newMessage", message);
-    }
-    
+
     console.log("newMessage END", socket.id);
   });
 
   socket.on("getMessages", async (room, isPublic, userId) => {
-    console.log("getMessages", room, isPublic, socket.id,userId);
+    console.log("getMessages", room, isPublic, socket.id, userId);
     const messages = await GetMessages(room, isPublic, socket.id, userId);
 
     socket.emit("getMessages", messages);

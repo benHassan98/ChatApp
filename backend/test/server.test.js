@@ -124,7 +124,7 @@ describe("User", () => {
         clientSocket2.once("newMessage", newMessageTest);
       });
 
-      clientSocket.emit("newMessage", roomName, {
+      clientSocket.emit("newMessage",{
         senderId: clientSocket.id,
         senderName: "fake3",
         isPublic: true,
@@ -165,7 +165,7 @@ describe("User", () => {
         clientSocket2.once("newMessage", newMessageTest);
       });
 
-      clientSocket.emit("newMessage", clientSocket2.id, {
+      clientSocket.emit("newMessage",{
         senderId: clientSocket.id,
         senderName: "fake4",
         receiverId: clientSocket2.id,

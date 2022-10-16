@@ -1,28 +1,51 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/Board.css";
-const Board = ({ socket, userName, room, isPublic, isJoined, receiverId }) => {
+const Board = ({
+  socket,
+  userName,
+  publicRoom,
+  privateRoom,
+  isJoined,
+  receiverId,
+}) => {
   const [messages, setMessages] = useState([]);
+  const [isDisconnected, setIsDisconnected] = useState(null);
   const textAreaRef = useRef();
   const bottomRef = useRef();
-
+  const stats = (() => {
+    if (privateRoom) {
+      return {
+        roomName: privateRoom,
+        isPublic: false,
+      };
+    } else {
+      return {
+        roomName: publicRoom,
+        isPublic: true,
+      };
+    }
+  })();
   useEffect(() => {
-    console.log("change", room); 
-  socket.emit("getMessages", room, isPublic, receiverId);
+    console.log("change", publicRoom, privateRoom);
+    setIsDisconnected(false);
     const getMessageListener = (receivedMessages) => {
       setMessages(receivedMessages);
     };
     const newMessageListener = (message) => {
-      if(room === message.room)  
-      setMessages((prevState) =>[...prevState, message]);
+      if (message.isDisconnected && message.userId === receiverId) {
+        setIsDisconnected(true);
+      }
+      if (stats.roomName === message.room)
+        setMessages((prevState) => [...prevState, message]);
     };
     socket.on("getMessages", getMessageListener);
     socket.on("newMessage", newMessageListener);
-
+    socket.emit("getMessages", stats.roomName, stats.isPublic, receiverId);
     return () => {
       socket.off("getMessages", getMessageListener);
       socket.off("newMessage", newMessageListener);
     };
-  }, [room]);
+  }, [publicRoom, privateRoom]);
   useEffect(() => {
     bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -62,22 +85,24 @@ const Board = ({ socket, userName, room, isPublic, isJoined, receiverId }) => {
           style={{ height: "70px" }}
           ref={textAreaRef}
         ></textarea>
-        <label htmlFor="floatingTextarea">Message...</label>
+        <label htmlFor="floatingTextarea">
+          {isDisconnected ? "User is Disconnected" : "Message..."}
+        </label>
         <button
           className="btn btn-primary"
-          disabled={!isJoined}
+          disabled={!isJoined || isDisconnected}
           onClick={() => {
             if (textAreaRef.current.value !== "") {
               const message = {
                 senderId: socket.id,
                 senderName: userName,
-                room,
-                isPublic,
+                room: stats.roomName,
+                isPublic: stats.isPublic,
                 content: textAreaRef.current.value,
               };
-              if (!isPublic) message.receiverId = receiverId;
+              if (!stats.isPublic) message.receiverId = receiverId;
               setMessages((prevState) => [...prevState, message]);
-              socket.emit("newMessage", room, message);
+              socket.emit("newMessage", message);
               textAreaRef.current.value = "";
             }
           }}

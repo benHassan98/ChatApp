@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/RoomsList.css";
-const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
+const RoomsList = ({
+  socket,
+  privateRoom,
+  setPublicRoom,
+  setIsJoined,
+  setPrivateRoom,
+  setReceiverId,
+}) => {
   const [rooms, setRooms] = useState([
     {
       name: "Public",
@@ -28,8 +35,7 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
     } else {
       const newRoomName = createRoominputRef.current.value;
       createRoominputRef.current.value = "";
-      setRoom(newRoomName);
-      setIsPublic(true);
+      setPublicRoom(newRoomName);
       setIsJoined(true);
       setRooms((prevState) => [
         ...prevState.map((room) => ({ ...room, isActive: false })),
@@ -134,8 +140,9 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
                 <div
                   className={
                     "list-group-item d-flex justify-content-between align-items-center " +
-                    (isActive ? "active" : "")
+                    (isActive && !privateRoom ? "active" : "")
                   }
+                  style={{ gap: "2px" }}
                   key={id}
                 >
                   <p
@@ -147,9 +154,10 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
                             : { ...room, isActive: false }
                         )
                       );
-                      setRoom(name);
-                      setIsPublic(true);
+                      setPublicRoom(name);
                       setIsJoined(isJoined);
+                      setPrivateRoom(null);
+                      setReceiverId(null);
                     }}
                   >
                     {name}
@@ -172,8 +180,7 @@ const RoomsList = ({ socket, setRoom, setIsJoined, setIsPublic }) => {
                               : { ...room, isActive: false }
                           )
                         );
-                        setRoom(name);
-                        setIsPublic(true);
+                        setPublicRoom(name);
                         setIsJoined(true);
                       }}
                     >

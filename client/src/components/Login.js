@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-// import socket from "../services/socket";
 import "../styles/Login.css";
 const Login = ({ socket, setUserName }) => {
   const [usersNames, setUsersNames] = useState([]);

@@ -4,39 +4,39 @@ import Board from "./Board";
 import RoomsList from "./RoomsList";
 import "../styles/ChatPage.css";
 const ChatPage = ({ socket, userName }) => {
-  const [room, setRoom] = useState("Public");
-  const [isPublic, setIsPublic] = useState(true);
+  const [publicRoom, setPublicRoom] = useState("Public");
+  const [privateRoom,setPrivateRoom] = useState(null);
   const [isJoined, setIsJoined] = useState(true);
   const [receiverId,setReceiverId] = useState(null);
-console.log('chatPage',room);
+console.log('chatPage',publicRoom);
   useEffect(()=>{
-    socket.emit("newUser", userName, room);
-    socket.emit("getMessages", room, isPublic);
+    socket.emit("newUser", userName, publicRoom);
   },[]);
   return (
     <>
       <UsersList
         socket={socket}
         userName={userName}
-        room={room}
-        setRoom={setRoom}
-        setIsPublic={setIsPublic}
+        publicRoom={publicRoom}
+        setPrivateRoom={setPrivateRoom}
         setIsJoined={setIsJoined}
         setReceiverId={setReceiverId}
       />
       <Board
         socket={socket}
         userName={userName}
-        room={room}
-        isPublic={isPublic}
+        publicRoom={publicRoom}
+        privateRoom={privateRoom}
         isJoined={isJoined}
         receiverId={receiverId}
       />
       <RoomsList
         socket={socket}
+        privateRoom={privateRoom}
         setIsJoined={setIsJoined}
-        setRoom={setRoom}
-        setIsPublic={setIsPublic}
+        setPublicRoom={setPublicRoom}
+        setPrivateRoom={setPrivateRoom}
+        setReceiverId={setReceiverId}
       />
     </>
   );
