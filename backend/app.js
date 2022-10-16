@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
     await CreateMessage(message);
 
     socket.join(room);
-    io.sockets.in(room).emit("chatUsers", roomsLists[room], room);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
     console.log("newUser END", socket.id);
   });
@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
     roomsLists[room].push(usersInfo[socket.id]);
     await CreateMessage(message);
     socket.join(room);
-    io.sockets.in(room).emit("chatUsers", roomsLists[room], room);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
     console.log("joinRoom END", socket.id);
   });
@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
     roomsLists[room] = roomsLists[room].filter((user) => user.id !== socket.id);
     await CreateMessage(message);
     socket.leave(room);
-    io.sockets.in(room).emit("chatUsers", roomsLists[room], room);
+    io.sockets.in(room).emit("chatUsers", roomsLists[room]);
     io.sockets.in(room).emit("newMessage", message);
     console.log("leaveRoom END", socket.id);
   });
@@ -137,7 +137,7 @@ io.on("connection", (socket) => {
         (user) => user.id !== socket.id
       );
       socket.leave(room);
-      socket.to(room).emit("chatUsers", roomsLists[room], room);
+      socket.to(room).emit("chatUsers", roomsLists[room]);
       socket.to(room).emit("newMessage", {
         userId: socket.id,
         userName: usersInfo[socket.id].userName,

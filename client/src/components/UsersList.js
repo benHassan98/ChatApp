@@ -12,13 +12,15 @@ const UsersList = ({
 }) => {
   const [roomUsers, setRoomUsers] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
-  
+
   useEffect(() => {
-    if (isPublic) socket.emit("getAllUsers");
-    const chatUsersListener = (users, roomName) => {
+    const chatUsersListener = (users) => {
       // console.log(users);
-      if (roomName === room)
-        setRoomUsers(() => users.map(({ rooms, ...user }) => user));
+      setRoomUsers(
+        users
+          .filter(({ rooms }) => rooms.includes(room))
+          .map(({ rooms, ...user }) => user)
+      );
     };
     const newMessageListener = (message) => {
       console.log("UsersList", message);
@@ -57,6 +59,7 @@ const UsersList = ({
 
     socket.on("chatUsers", chatUsersListener);
     socket.on("newMessage", newMessageListener);
+    if (isPublic) socket.emit("getAllUsers");
 
     return () => {
       socket.off("chatUsers", chatUsersListener);

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 // import socket from "../services/socket";
 import "../styles/Login.css";
-const Login = ({socket, setUserName}) => {
-  const [usersNames,setUsersNames] = useState([]);
+const Login = ({ socket, setUserName }) => {
+  const [usersNames, setUsersNames] = useState([]);
   const userNameRef = useRef();
   const userNameErrorRef = useRef();
   const validateUserName = (e) => {
@@ -20,7 +20,6 @@ const Login = ({socket, setUserName}) => {
       userNameErrorRef.current.textContent = "UserName is already used";
     } else {
       setUserName(userNameRef.current.value);
-      
     }
   };
 
@@ -33,45 +32,51 @@ const Login = ({socket, setUserName}) => {
 
   // return ()=>socket.off('chatUsers',listener);
   // },[]);
-  
+
   useEffect(() => {
     const listener = (users) => {
-      setUsersNames([...new Set([...usersNames,...users.map(user=>user.userName)] )  ]);
+      setUsersNames([
+        ...new Set([...usersNames, ...users.map((user) => user.userName)]),
+      ]);
     };
-  socket.on("chatUsers", listener);
+    socket.on("chatUsers", listener);
     socket.emit("getAllUsers");
-  
 
-  return ()=>socket.off('chatUsers',listener);
-    
+    return () => socket.off("chatUsers", listener);
   }, []);
   return (
-    <div
-      className="shadow p-3 mb-5 bg-body rounded"
-      style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-    >
-      <h3 className="text-center ">Chat App</h3>
-      <div className="mb-3">
-        <label htmlFor="userName" className="form-label">
-          User Name
-        </label>
-        <input
-          type="text"
-          className="form-control"
-          id="userName"
-          ref={userNameRef}
-          data-testid='userName'
-        />
-        <div className="invalid-feedback" ref={userNameErrorRef} data-testid='userNameError'></div>
-      </div>
-
-      <button
-        type="button"
-        className="btn btn-primary btn-lg"
-        onClick={(e) => validateUserName(e)}
+    <div className="login-div" style={{'margin':'auto'}}>
+      <div
+        className="shadow p-3 mb-5 bg-body rounded"
+        style={{ display: "flex", flexDirection: "column", gap: "5px" }}
       >
-        Log In
-      </button>
+        <h3 className="text-center ">Chat App</h3>
+        <div className="mb-3">
+          <label htmlFor="userName" className="form-label">
+            User Name
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="userName"
+            ref={userNameRef}
+            data-testid="userName"
+          />
+          <div
+            className="invalid-feedback"
+            ref={userNameErrorRef}
+            data-testid="userNameError"
+          ></div>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-primary btn-lg"
+          onClick={(e) => validateUserName(e)}
+        >
+          Log In
+        </button>
+      </div>
     </div>
   );
 };
