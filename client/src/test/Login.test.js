@@ -6,10 +6,7 @@ import userEvent from "@testing-library/user-event";
 
 describe('Login',()=>{
 
-beforeEach(()=>{
-
-});
-test('renders successfully',()=>{
+it('should render successfully',()=>{
     const setUserName = jest.fn();
     let socket = new SocketMock();
     socket.on('getAllUsers',()=>{
@@ -27,7 +24,7 @@ expect(loginBtn).toBeDefined();
 
 });
 
-test('should throw error when userName length >=30',async()=>{
+it('should throw error when userName length >=30',async()=>{
     const setUserName = jest.fn();
     let socket = new SocketMock();
     let inValidUserName = Array(33).fill('a').join('');
@@ -50,7 +47,7 @@ const loginBtn = screen.getByRole('button',{name:'Log In'});
 });
 
 
-test('should throw error when userName already exists',async()=>{
+it('should throw error when userName already exists',async()=>{
     const setUserName = jest.fn();
     let socket = new SocketMock();
     let inValidUserName = 'abc';
@@ -76,7 +73,7 @@ const loginBtn = screen.getByRole('button',{name:'Log In'});
 });
 
 
-test('should login successfully when submitting valid userName',async()=>{
+it('should login successfully when submitting valid userName',async()=>{
     const setUserName = jest.fn();
     let socket = new SocketMock();
     let validUserName = 'abc';

@@ -26,7 +26,7 @@ const Board = ({
     }
   })();
   useEffect(() => {
-    console.log("change", publicRoom, privateRoom);
+    // console.log("change", publicRoom, privateRoom);
     setIsDisconnected(false);
     const getMessageListener = (receivedMessages) => {
       setMessages(receivedMessages);
@@ -51,7 +51,7 @@ const Board = ({
   }, [messages]);
   return (
     <div className="board">
-      <div className="messages">
+      <div className="messages" data-testid='messages'>
         {messages.map((message, id) => {
           return (
             <div
@@ -84,6 +84,7 @@ const Board = ({
           id="floatingTextarea"
           style={{ height: "70px" }}
           ref={textAreaRef}
+          data-testid='text-area'
         ></textarea>
         <label htmlFor="floatingTextarea">
           {isDisconnected ? "User is Disconnected" : "Message..."}

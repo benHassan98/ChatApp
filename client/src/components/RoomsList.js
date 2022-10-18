@@ -51,7 +51,6 @@ const RoomsList = ({
   };
 
   useEffect(() => {
-    socket.emit("getAllRooms");
     const getAllRoomsListener = (allRooms) => {
       setRooms((prevState) => {
         const newRooms = allRooms
@@ -92,6 +91,7 @@ const RoomsList = ({
     socket.on("getAllRooms", getAllRoomsListener);
     socket.on("newRoom", newRoomsListener);
     socket.on("newMessage", newMessageListener);
+    socket.emit("getAllRooms");
 
     return () => {
       socket.off("getAllRooms", getAllRoomsListener);

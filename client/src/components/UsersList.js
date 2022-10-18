@@ -21,7 +21,7 @@ const UsersList = ({
       );
     };
     const newMessageListener = (message) => {
-      console.log("UsersList", message);
+      // console.log("UsersList", message);
       if (message.isDisconnected) {
         setChatUsers((prevState) => [
           ...prevState.filter((chatUser) => chatUser.id !== message.userId),
