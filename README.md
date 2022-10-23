@@ -1,5 +1,5 @@
 # Chat App
-![MemberOnly](https://github.com/yabani98/ChatApp/blob/master/ChatApp.png?raw=true)
+![Chat App](https://github.com/yabani98/ChatApp/blob/main/ChatApp.png?raw=true)
 
 > - [live demo](#)
 
