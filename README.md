@@ -19,4 +19,4 @@
 * Node/Express
 * Mongodb
 * Socket.io
-* ReactJS*
+* ReactJS
