@@ -19,8 +19,5 @@
 * Node/Express
 * Mongodb
 * Socket.io
-<<<<<<< HEAD
 * ReactJS
-=======
-* ReactJS
->>>>>>> 7c6e70417f39aad60f63132c2950793fc1668f20
+
