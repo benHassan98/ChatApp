@@ -131,19 +131,24 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("disconnect: ", socket.id);
-    usersInfo[socket.id]?.rooms.forEach(async (room) => {
+    usersInfo[socket.id]?.rooms.forEach((room) => {
       roomsLists[room] = roomsLists[room].filter(
         (user) => user.id !== socket.id
       );
       socket.leave(room);
       socket.to(room).emit("chatUsers", roomsLists[room]);
       socket.to(room).emit("newMessage", {
-        userId: socket.id,
-        userName: usersInfo[socket.id].userName,
-        isDisconnected: 1,
+        senderId: "ChatBot",
+        room,
+        isPublic: true,
+        content: `${usersInfo[socket.id].userName} has disconnected`,
       });
     });
-
+    io.emit('newMessage',{
+      userId: socket.id,
+      userName: usersInfo[socket.id].userName,
+      isDisconnected: 1,
+    });
     delete usersInfo[socket.id];
   });
 });
